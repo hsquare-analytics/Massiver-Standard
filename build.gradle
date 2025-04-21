@@ -9,7 +9,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(23)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -26,13 +26,49 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    testImplementation 'org.springframework.batch:spring-batch-test'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     runtimeOnly 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+    // mapstruct
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    // qutarz
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
+//
+//tasks.register('buildFrontend', Exec) {
+//    workingDir "$projectDir/massiver-front" // 프론트엔드 폴더 위치
+//    commandLine 'sh', '-c', 'npm install && npm run build' // 프론트 빌드 명령어
+//}
+//
+//tasks.register('copyFrontend', Copy) {
+//    dependsOn 'buildFrontend' // 프론트 빌드 완료 후 실행
+//    from "$projectDir/massiver-front/build" // 프론트 빌드 결과 경로
+//    into "$projectDir/src/main/resources/static/" // Spring Boot 정적 리소스 폴더
+//}
+//
+//tasks.named('processResources') {
+//    dependsOn 'copyFrontend' // 리소스 프로세스 전에 프론트 복사
+//}
+//
+//tasks.named('bootJar') {
+//    dependsOn 'copyFrontend' // Spring Boot JAR 빌드 전에 실행
+//}
+//
+//tasks.named('build') {
+//    dependsOn 'copyFrontend' // Gradle build 실행 시 프론트도 빌드
+//}
