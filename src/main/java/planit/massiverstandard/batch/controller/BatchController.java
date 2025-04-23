@@ -1,7 +1,6 @@
 package planit.massiverstandard.batch.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import planit.massiverstandard.batch.BatchJobLauncher;
 import planit.massiverstandard.batch.usecase.ExecuteGroup;
+import planit.massiverstandard.batch.usecase.ExecuteUnit;
 
 import java.util.UUID;
 
@@ -22,6 +22,7 @@ public class BatchController {
 
     private final BatchJobLauncher batchJobLauncher;
     private final ExecuteGroup executeGroup;
+    private final ExecuteUnit executeUnit;
 
     @Operation(
         summary = "UNIT 실행",
@@ -31,7 +32,7 @@ public class BatchController {
     public ResponseEntity<String> runUnit(@PathVariable UUID unitId) {
 
         try {
-            batchJobLauncher.runBatchJob(unitId);
+            executeUnit.asyncUnit(unitId);
             return ResponseEntity.ok("Job started");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -47,7 +48,7 @@ public class BatchController {
     public ResponseEntity<String> runGroup(@PathVariable UUID groupId) {
 
         try {
-            executeGroup.executeGroup(groupId);
+            executeGroup.asyncGroup(groupId);
             return ResponseEntity.ok("Job started");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

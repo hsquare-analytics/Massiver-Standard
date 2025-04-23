@@ -1,28 +1,58 @@
 package planit.massiverstandard.batch;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import planit.massiverstandard.batch.job.ScheduleJob;
 import planit.massiverstandard.batch.usecase.ExecuteSchedule;
 import planit.massiverstandard.batch.usecase.CheckSchedule;
 import planit.massiverstandard.batch.usecase.ExecuteGroup;
+import planit.massiverstandard.batch.usecase.ExecuteUnit;
 import planit.massiverstandard.group.entity.Group;
 import planit.massiverstandard.group.service.FindGroup;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class BatchService implements ExecuteSchedule, ExecuteGroup, CheckSchedule {
+public class BatchService implements ExecuteUnit, ExecuteSchedule, ExecuteGroup, CheckSchedule {
 
     private final Scheduler scheduler;
     private final FindGroup findGroup;
     private final BatchJobLauncher batchJobLauncher;
+
+    /**
+     * 기존 동기 runBatchJob을 호출하는 비동기 래퍼
+     */
+    @Override
+    @Async
+    public CompletableFuture<Void> asyncUnit(UUID unitId) {
+        try {
+            batchJobLauncher.runBatchJob(unitId);   // 실제 Job 실행
+        } catch (Exception e) {
+            log.error("[Async] Job 실행 중 오류", e);
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Async
+    @Override
+    public CompletableFuture<Void> asyncGroup(UUID groupId) {
+        try {
+            executeGroup(groupId);
+        } catch (Exception e) {
+            throw new RuntimeException("Job 실행 실패", e);
+        }
+        return CompletableFuture.completedFuture(null);
+    }
 
     @Override
     public void executeGroup(UUID groupId) {

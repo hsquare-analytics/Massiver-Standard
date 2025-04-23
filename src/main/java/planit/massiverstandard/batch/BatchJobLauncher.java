@@ -6,10 +6,12 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import planit.massiverstandard.Executable;
 import planit.massiverstandard.batch.job.BatchJob;
+import planit.massiverstandard.batch.usecase.ExecuteUnit;
 import planit.massiverstandard.group.entity.Group;
 import planit.massiverstandard.group.entity.GroupUnit;
 import planit.massiverstandard.group.service.FindGroup;
@@ -19,10 +21,7 @@ import planit.massiverstandard.unit.entity.Unit;
 import planit.massiverstandard.unit.service.UnitGetService;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -296,114 +295,6 @@ public class BatchJobLauncher {
             .map(this::describe)
             .collect(Collectors.joining(", "));
     }
-
-//    @Transactional
-//    public void runGroup(UUID groupId) {
-//        // 1️⃣ DAG 그래프 생성 (위상 정렬을 위한 진입 차수 관리)
-//        Map<Unit, List<Unit>> graph = new HashMap<>();
-//        Map<Unit, Integer> inDegree = new HashMap<>();
-//        Set<Unit> completedUnits = new HashSet<>();
-//
-//        Group group = groupGetService.byId(groupId);
-//        List<GroupUnit> groupUnits = group.getGroupUnits();
-//
-//        for (GroupUnit groupUnit : groupUnits) {
-//            Unit unit = groupUnit.getChildUnit();
-//            graph.putIfAbsent(unit, new ArrayList<>());
-//            inDegree.putIfAbsent(unit, 0);
-//
-//            for (GroupUnit parent : groupUnit.getParentGroupUnits()) {
-//                Unit parentUnit = parent.getChildUnit();
-//                graph.putIfAbsent(parentUnit, new ArrayList<>());
-//                graph.get(parentUnit).add(unit);
-//                inDegree.put(unit, inDegree.getOrDefault(unit, 0) + 1);
-//            }
-//        }
-//
-//        // 2️⃣ 위상 정렬 (실행 순서 결정)
-//        Queue<Unit> readyQueue = new LinkedList<>();
-//        for (Unit unit : inDegree.keySet()) {
-//            if (inDegree.get(unit) == 0) {
-//                readyQueue.add(unit);
-//            }
-//        }
-//
-//        // 3️⃣ DAG 기반 병렬 실행 처리
-//        ExecutorService executor = Executors.newFixedThreadPool(10);
-//
-//        while (!readyQueue.isEmpty()) {
-//            List<Unit> parallelUnits = new ArrayList<>();
-//
-//            // 병렬 실행 가능한 Unit들 가져오기
-//            while (!readyQueue.isEmpty()) {
-//                parallelUnits.add(readyQueue.poll());
-//            }
-//
-//            List<Future<?>> futures = new ArrayList<>();
-//
-//            // 병렬 실행
-//            for (Unit unit : parallelUnits) {
-//                futures.add(executor.submit(() -> {
-//                    try {
-//                        runBatchJob(unit.getId());
-//                        synchronized (completedUnits) {
-//                            completedUnits.add(unit);
-//                        }
-//                    } catch (Exception e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                }));
-//            }
-//
-//            // 모든 병렬 실행 완료 대기
-//            for (Future<?> future : futures) {
-//                try {
-//                    future.get();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//
-//            // 4️⃣ 실행 완료된 Unit 기반으로 다음 실행할 Unit 추가
-//            for (Unit unit : parallelUnits) {
-//                for (Unit dependent : graph.getOrDefault(unit, new ArrayList<>())) {
-//                    inDegree.put(dependent, inDegree.get(dependent) - 1);
-//                    if (inDegree.get(dependent) == 0) {
-//                        readyQueue.add(dependent);
-//                    }
-//                }
-//            }
-//        }
-//
-//        executor.shutdown();
-//    }
-
-
-//    private void executeParallelUnits(List<Unit> units) {
-//        ExecutorService executor = Executors.newFixedThreadPool(units.size());
-//        List<Future<?>> futures = new ArrayList<>();
-//
-//        for (Unit unit : units) {
-//            futures.add(executor.submit(() -> {
-//                try {
-//                    runBatchJob(unit.getId());
-//                } catch (Exception e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }));
-//        }
-//
-//        // 모든 병렬 실행이 완료될 때까지 대기
-//        for (Future<?> future : futures) {
-//            try {
-//                future.get();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        executor.shutdown();
-//    }
 
     public void runBatchJob(UUID unitId) throws Exception {
         Unit unit = unitGetService.byId(unitId);
