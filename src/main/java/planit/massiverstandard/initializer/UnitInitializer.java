@@ -3,10 +3,12 @@ package planit.massiverstandard.initializer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import planit.massiverstandard.database.DataBase;
+import planit.massiverstandard.filter.entity.DateRangeFilter;
 import planit.massiverstandard.filter.entity.Filter;
 import planit.massiverstandard.unit.entity.Unit;
-import planit.massiverstandard.unit.repository.UnitRepository;
+import planit.massiverstandard.unit.repository.UnitJpaRepository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +17,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UnitInitializer {
 
-    private final UnitRepository unitRepository;
+    private final UnitJpaRepository unitRepository;
 
     public List<Unit> init(DataBase sourceDb, DataBase targetDb) {
 
@@ -36,6 +38,20 @@ public class UnitInitializer {
             unitList.add(unitRepository.save(unit));
         }
 
+        // 필터 추가한 유닛 생성
+        String unitName = "UNIT-DATA_FILETER";
+        String sourceTableName = "source_table_date";
+        String targetTableName = "target_table_date";
+        Unit unit = createUnit(unitName, sourceDb, "public", sourceTableName, targetDb, "public", targetTableName,
+            Map.of(
+                "id", "id",
+                "col1", "col1",
+                "col2", "col2",
+                "date_col", "date_col"
+            ),
+            List.of(createDateFilter()));
+        Unit save = unitRepository.save(unit);
+
         return unitList;
     }
 
@@ -54,5 +70,16 @@ public class UnitInitializer {
         filters.forEach(build::addFilter);
 
         return unitRepository.save(build);
+    }
+
+    private Filter createDateFilter(){
+        DateRangeFilter build = DateRangeFilter.builder()
+            .name("date_filter")
+            .order(1)
+            .columnName("date_col")
+            .fixedStartDate(LocalDate.of(2023, 1, 1))
+            .fixedEndDate(LocalDate.of(2023, 12, 31))
+            .build();
+        return build;
     }
 }

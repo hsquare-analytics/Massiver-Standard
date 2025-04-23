@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import planit.massiverstandard.BaseEntity;
 import planit.massiverstandard.Executable;
 import planit.massiverstandard.columntransform.ColumnTransform;
@@ -81,6 +82,7 @@ public class Unit extends BaseEntity implements Executable {
     }
 
     public void addFilter(Filter filter) {
+        filter.assignUnit(this);
         filters.add(filter);
     }
 

@@ -12,15 +12,15 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create  # ?????? ?? ? ??? ?? ????
-#    show-sql: true  # SQL ?? ?? ???
-#    properties:
-#      hibernate.format_sql: true
-#      hibernate.use_sql_comments: true
-#      hibernate.type: trace   # 👈 바인딩된 파라미터 값까지 로그에 찍힘!
-#logging:
-#  level:
-#    org.hibernate.SQL: debug
-#    org.hibernate.orm.jdbc.bind: trace  # 🔥 Hibernate 6.2+ 바인딩값 로그
-#    org.hibernate.orm.jdbc.extract: trace  # (Optional) ResultSet 추출 로그
+    show-sql: true  # SQL ?? ?? ???
+    properties:
+      hibernate.format_sql: true
+      hibernate.use_sql_comments: true
+      hibernate.type: trace   # 👈 바인딩된 파라미터 값까지 로그에 찍힘!
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace  # 🔥 Hibernate 6.2+ 바인딩값 로그
+    org.hibernate.orm.jdbc.extract: trace  # (Optional) ResultSet 추출 로그
 server:
   port: 2025

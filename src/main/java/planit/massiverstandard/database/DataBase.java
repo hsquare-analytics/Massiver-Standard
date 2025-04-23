@@ -58,18 +58,10 @@ public class DataBase {
         this.password = password;
         this.description = description;
 
-        testConnection();
     }
 
-    public void testConnection() {
-
-        DataSource dataSource = createDataSource();
-
-        try (var connection = dataSource.getConnection()) {
-            connection.isValid(2); // 2초 내에 유효성 검사
-        } catch (Exception e) {
-            throw new RuntimeException("데이터베이스 연결에 실패했습니다.", e);
-        }
+    public String toUrl() {
+        return "jdbc:" + type + "://" + host + ":" + port + "/" + name;
     }
 
     public DataSource createDataSource() {

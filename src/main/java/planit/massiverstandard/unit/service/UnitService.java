@@ -12,7 +12,7 @@ import planit.massiverstandard.filter.serivce.FilterService;
 import planit.massiverstandard.group.service.GroupUnitService;
 import planit.massiverstandard.unit.dto.UnitDto;
 import planit.massiverstandard.unit.entity.Unit;
-import planit.massiverstandard.unit.repository.UnitRepository;
+import planit.massiverstandard.unit.repository.UnitJpaRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,7 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UnitService {
 
-    private final UnitRepository unitRepository;
+    private final UnitJpaRepository unitRepository;
     private final GroupUnitService groupUnitService;
     private final DataBaseService dataBaseService;
     private final UnitGetService unitGetService;

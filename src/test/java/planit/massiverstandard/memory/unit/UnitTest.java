@@ -7,7 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import planit.massiverstandard.DataInitializer;
 import planit.massiverstandard.data.DataBaseMemoryRepository;
-import planit.massiverstandard.data.UnitMemoryRepository;
+import planit.massiverstandard.unit.repository.UnitMemoryRepository;
 import planit.massiverstandard.database.DataBase;
 import planit.massiverstandard.database.DataBaseService;
 import planit.massiverstandard.unit.entity.Unit;

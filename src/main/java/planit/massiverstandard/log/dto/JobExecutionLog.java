@@ -1,4 +1,4 @@
-package planit.massiverstandard.log;
+package planit.massiverstandard.log.dto;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

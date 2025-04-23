@@ -49,6 +49,12 @@ CREATE TABLE IF NOT EXISTS source_table_j (
                                               col1 VARCHAR(100),
     col2 VARCHAR(100)
     );
+CREATE TABLE IF NOT EXISTS source_table_date (
+                                              id BIGINT PRIMARY KEY,
+                                              col1 VARCHAR(100),
+    col2 VARCHAR(100),
+    date_col TIMESTAMP
+    );
 
 -- 테이블 초기화
 TRUNCATE TABLE source_table_a;
@@ -61,7 +67,7 @@ TRUNCATE TABLE source_table_g;
 TRUNCATE TABLE source_table_h;
 TRUNCATE TABLE source_table_i;
 TRUNCATE TABLE source_table_j;
-
+TRUNCATE TABLE source_table_date;
 
 -- 데이터 입력
 INSERT INTO source_table_a (id, col1, col2)
@@ -101,4 +107,11 @@ INSERT INTO source_table_i (id, col1, col2) VALUES (2, 'ii', 'jj');
 
 INSERT INTO source_table_j (id, col1, col2) VALUES (1, 'kk', 'll');
 INSERT INTO source_table_j (id, col1, col2) VALUES (2, 'mm', 'nn');
+
+INSERT INTO source_table_date (id, col1, col2, date_col)
+VALUES (1, 'oo', 'pp', '2023-01-01 00:00:00');
+INSERT INTO source_table_date (id, col1, col2, date_col)
+VALUES (2, 'qq', 'rr', '2024-01-01 00:00:00');
+INSERT INTO source_table_date (id, col1, col2, date_col)
+VALUES (3, 'ss', 'tt', '2025-01-01 00:00:00');
 

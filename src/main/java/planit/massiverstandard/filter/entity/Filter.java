@@ -39,4 +39,8 @@ public abstract class Filter extends BaseEntity {
     }
 
     public abstract Map<String, Object> process(Map<String, Object> item);
+
+    public void assignUnit(Unit unit) {
+        this.unit = unit;
+    }
 }

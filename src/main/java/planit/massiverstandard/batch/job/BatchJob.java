@@ -21,8 +21,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.transaction.PlatformTransactionManager;
+import planit.massiverstandard.filter.entity.DateRangeFilter;
 import planit.massiverstandard.filter.entity.Filter;
 import planit.massiverstandard.unit.entity.Unit;
+import planit.massiverstandard.unit.service.FindUnit;
 import planit.massiverstandard.unit.service.UnitGetService;
 
 import javax.sql.DataSource;
@@ -35,7 +37,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BatchJob {
 
-    private final UnitGetService unitGetService;
+    private final FindUnit findUnit;
     private final PlatformTransactionManager transactionManager;
     private final JobRepository jobRepository;
     private final Step etlStep;
@@ -73,8 +75,22 @@ public class BatchJob {
         DataSource dataSource = unit.getSourceDb().createDataSource();
 
         JdbcCursorItemReader<Map<String, Object>> reader = new JdbcCursorItemReader<>();
+
+        StringBuilder sql = new StringBuilder("""
+            SELECT *
+            FROM """ + " " + unit.getSourceSchema() + "." + unit.getSourceTable() + " " +"""
+            WHERE 1=1
+            """);
+
+        unit.getFilters().stream()
+            .filter(filter -> filter instanceof DateRangeFilter)
+            .forEach(filter -> {
+                DateRangeFilter dateRangeFilter = (DateRangeFilter) filter;
+                dateRangeFilter.addCondition(sql);
+            });
+
         reader.setDataSource(dataSource);
-        reader.setSql("SELECT * FROM " + unit.getSourceSchema() + "." + unit.getSourceTable());
+        reader.setSql(sql.toString());
         reader.setRowMapper(new ColumnMapRowMapper());
         return reader;
     }
@@ -84,7 +100,7 @@ public class BatchJob {
     public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(
         @Value("#{jobParameters['unitId']}") String unitId
     ) {
-        Unit unit = unitGetService.byId(UUID.fromString(unitId));
+        Unit unit = findUnit.byId(UUID.fromString(unitId));
         List<Filter> filters = unit.getFilters();
 
         return item -> {
@@ -106,7 +122,7 @@ public class BatchJob {
     @StepScope
     public JdbcBatchItemWriter<Map<String, Object>> writer(@Value("#{jobParameters['unitId']}") String unitId) {
 
-        Unit unit = unitGetService.byId(UUID.fromString(unitId));
+        Unit unit = findUnit.byId(UUID.fromString(unitId));
         DataSource targetDataSource = unit.getTargetDb().createDataSource();
         String targetSchema = unit.getTargetSchema();
         String targetTable = unit.getTargetTable();
