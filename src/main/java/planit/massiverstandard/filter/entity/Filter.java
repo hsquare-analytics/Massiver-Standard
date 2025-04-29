@@ -3,6 +3,7 @@ package planit.massiverstandard.filter.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import planit.massiverstandard.BaseEntity;
@@ -16,6 +17,7 @@ import java.util.UUID;
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorColumn(name = "filter_type") // 구분 컬럼
+@Table(name = "massiver_st_filter")
 public abstract class Filter extends BaseEntity {
 
     @Id
@@ -30,6 +32,10 @@ public abstract class Filter extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "unit_id")
     private Unit unit;
+
+    // ★ discriminator 값을 바로 읽어올 필드
+    @Column(name = "filter_type", insertable = false, updatable = false)
+    private String type;
 
     public Filter(Unit unit, String name, int order) {
         this.id = UUID.randomUUID();

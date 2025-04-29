@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import planit.massiverstandard.Executable;
-import planit.massiverstandard.group.dto.mapper.Mapper;
+import planit.massiverstandard.config.Mapper;
 import planit.massiverstandard.group.dto.request.GroupUnitDto;
 import planit.massiverstandard.group.dto.request.ParentGroupUnitDto;
 import planit.massiverstandard.group.entity.Group;

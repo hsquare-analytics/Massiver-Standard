@@ -7,8 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import planit.massiverstandard.unit.dto.UnitDto;
 import planit.massiverstandard.unit.dto.UnitMapper;
-import planit.massiverstandard.unit.dto.request.UnitRequestDto;
+import planit.massiverstandard.unit.dto.request.UnitRequest;
+import planit.massiverstandard.unit.dto.request.UnitUpdateDto;
+import planit.massiverstandard.unit.dto.request.UnitUpdateRequestDto;
 import planit.massiverstandard.unit.entity.Unit;
+import planit.massiverstandard.unit.service.CommandUnit;
 import planit.massiverstandard.unit.service.UnitGetService;
 import planit.massiverstandard.unit.service.UnitService;
 
@@ -25,11 +28,12 @@ public class UnitController {
     private final UnitGetService unitGetService;
 
     private final UnitMapper unitMapper;
+    private final CommandUnit commandUnit;
 
     @Operation(summary = "UNIT 생성", description = "UNIT을 생성합니다.")
     @PostMapping
-    public Unit createUnit(@Valid @RequestBody UnitRequestDto unitRequestDto) {
-        UnitDto dto = unitMapper.toDto(unitRequestDto);
+    public Unit createUnit(@Valid @RequestBody UnitRequest unitRequest) {
+        UnitDto dto = unitMapper.toDto(unitRequest);
         return unitService.createUnit(dto);
     }
 
@@ -51,4 +55,10 @@ public class UnitController {
         unitService.deleteUnit(id);
     }
 
+    @Operation(summary = "UNIT 수정", description = "UNIT을 수정합니다.")
+    @PatchMapping("/{id}")
+    public void updateUnit(@PathVariable UUID id, @Valid @RequestBody UnitUpdateRequestDto requestDto) {
+        UnitUpdateDto dto = unitMapper.toUpdateDto(requestDto);
+        commandUnit.update(id, dto);
+    }
 }

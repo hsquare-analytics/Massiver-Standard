@@ -4,8 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import planit.massiverstandard.DataInitializer;
-import planit.massiverstandard.database.DataBase;
-import planit.massiverstandard.database.DataBaseService;
+import planit.massiverstandard.datasource.entity.DataSource;
+import planit.massiverstandard.datasource.service.DataSourceService;
 import planit.massiverstandard.group.service.GroupService;
 import planit.massiverstandard.unit.entity.Unit;
 import planit.massiverstandard.unit.service.UnitService;
@@ -16,10 +16,10 @@ import java.util.List;
 class GroupServiceTest {
 
     @Autowired
-    DataBaseService dataBaseService;
+    DataSourceService dataSourceService;
 
-    DataBase sourceDataBase;
-    DataBase targetDataBase;
+    DataSource sourceDataSource;
+    DataSource targetDataSource;
 
     @Autowired
     UnitService unitService;
@@ -31,14 +31,14 @@ class GroupServiceTest {
 
     @BeforeEach
     void setUp() {
-        DataBase dataBaseRequest = DataInitializer.createDataBase();
-        DataBase dataBase = dataBaseService.createDataBase(dataBaseRequest);
-        this.sourceDataBase = dataBase;
-        this.targetDataBase = dataBase;
+        DataSource dataSourceRequest = DataInitializer.createDataBase();
+        DataSource dataSource = dataSourceService.createDataBase(dataSourceRequest);
+        this.sourceDataSource = dataSource;
+        this.targetDataSource = dataSource;
 
         this.unit = unitService.createUnit(DataInitializer.createUnitDto(
-            sourceDataBase.getId(),
-            targetDataBase.getId(),
+            sourceDataSource.getId(),
+            targetDataSource.getId(),
             "public",
             "source_table",
             "public",

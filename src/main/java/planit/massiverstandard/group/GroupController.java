@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import planit.massiverstandard.group.dto.mapper.Mapper;
+import planit.massiverstandard.config.Mapper;
 import planit.massiverstandard.group.dto.request.GroupDto;
 import planit.massiverstandard.group.dto.request.GroupRequestDto;
 import planit.massiverstandard.group.dto.response.GroupResponseDto;

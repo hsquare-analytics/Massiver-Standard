@@ -6,10 +6,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import planit.massiverstandard.DataInitializer;
-import planit.massiverstandard.data.DataBaseMemoryRepository;
+import planit.massiverstandard.data.DataSourceMemoryRepository;
 import planit.massiverstandard.unit.repository.UnitMemoryRepository;
-import planit.massiverstandard.database.DataBase;
-import planit.massiverstandard.database.DataBaseService;
+import planit.massiverstandard.datasource.entity.DataSource;
+import planit.massiverstandard.datasource.service.DataSourceService;
 import planit.massiverstandard.unit.entity.Unit;
 import planit.massiverstandard.unit.repository.UnitRepository;
 
@@ -17,25 +17,25 @@ class UnitTest {
 
 
     private UnitRepository unitRepository;
-    private DataBaseService dataBaseService;
-    private DataBaseMemoryRepository dataBaseRepository;
+    private DataSourceService dataSourceService;
+    private DataSourceMemoryRepository dataBaseRepository;
 
     @BeforeEach
     void setUp() {
         unitRepository = new UnitMemoryRepository(); // UnitRepository의 구현체를 사용하여 초기화
 
-        dataBaseRepository = new DataBaseMemoryRepository();
-        dataBaseService = new DataBaseService(dataBaseRepository);
+        dataBaseRepository = new DataSourceMemoryRepository();
+        dataSourceService = new DataSourceService(dataBaseRepository);
 
         dataDataBaseSetUp();
     }
 
     void dataDataBaseSetUp() {
-        DataBase sourceDataBase = DataInitializer.createDataBase();
-        DataBase targetDataBase = DataInitializer.createDataBase();
+        DataSource sourceDataSource = DataInitializer.createDataBase();
+        DataSource targetDataSource = DataInitializer.createDataBase();
 
-        sourceDataBase = dataBaseService.createDataBase(sourceDataBase);
-        targetDataBase = dataBaseService.createDataBase(targetDataBase);
+        sourceDataSource = dataSourceService.createDataBase(sourceDataSource);
+        targetDataSource = dataSourceService.createDataBase(targetDataSource);
     }
 
     @AfterEach

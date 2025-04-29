@@ -2,7 +2,8 @@ package planit.massiverstandard.initializer;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import planit.massiverstandard.database.DataBase;
+import planit.massiverstandard.columntransform.ColumnTransform;
+import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.filter.entity.DateRangeFilter;
 import planit.massiverstandard.filter.entity.Filter;
 import planit.massiverstandard.unit.entity.Unit;
@@ -19,15 +20,16 @@ public class UnitInitializer {
 
     private final UnitJpaRepository unitRepository;
 
-    public List<Unit> init(DataBase sourceDb, DataBase targetDb) {
+    public List<Unit> init(DataSource sourceDb, DataSource targetDb) {
 
         List<Unit> unitList = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            String unitName = "UNIT-" + (char) ('A' + i); // UNIT-A, UNIT-B, UNIT-C ... 생성
-            String sourceTableName = "source_table_" + (char) ('a' + i); // source_table_a, source_table_b ... 생성
-            String targetTableName = "target_table_" + (char) ('a' + i); // target_table_a, target_table_b ... 생성
-            Unit unit = createUnit(unitName, sourceDb, "public", sourceTableName, targetDb, "public", targetTableName,
+            String unitName = "UNIT-" + (char) ('A' + i); // UNIT-A, UNIT-B, …
+            String sourceTableName = "SOURCE_TABLE_" + (char) ('A' + i); // SOURCE_TABLE_A, SOURCE_TABLE_B, …
+            String targetTableName = "TARGET_TABLE_" + (char) ('A' + i); // TARGET_TABLE_A, TARGET_TABLE_B, …
+
+            Unit unit = createUnit(unitName, sourceDb, "PUBLIC", sourceTableName, targetDb, "PUBLIC", targetTableName,
                 Map.of(
                     "id", "id",
                     "col1", "col1",
@@ -40,9 +42,9 @@ public class UnitInitializer {
 
         // 필터 추가한 유닛 생성
         String unitName = "UNIT-DATA_FILETER";
-        String sourceTableName = "source_table_date";
-        String targetTableName = "target_table_date";
-        Unit unit = createUnit(unitName, sourceDb, "public", sourceTableName, targetDb, "public", targetTableName,
+        String sourceTableName = "SOURCE_TABLE_date";
+        String targetTableName = "TARGET_TABLE_date";
+        Unit unit = createUnit(unitName, sourceDb, "PUBLIC", sourceTableName, targetDb, "PUBLIC", targetTableName,
             Map.of(
                 "id", "id",
                 "col1", "col1",
@@ -55,7 +57,7 @@ public class UnitInitializer {
         return unitList;
     }
 
-    public Unit createUnit(String name, DataBase sourceDb, String sourceSchema, String sourceTable, DataBase targetDb, String targetSchema, String targetTable, Map<String, String> columnMap, List<Filter> filters) {
+    public Unit createUnit(String name, DataSource sourceDb, String sourceSchema, String sourceTable, DataSource targetDb, String targetSchema, String targetTable, Map<String, String> columnMap, List<Filter> filters) {
         Unit build = Unit.builder()
             .name(name)
             .sourceDb(sourceDb)
@@ -66,13 +68,21 @@ public class UnitInitializer {
             .targetTable(targetTable)
             .build();
 
-        columnMap.forEach(build::addColumnTransform);
+        List<ColumnTransform> columnTransformList = columnMap.entrySet().stream()
+            .map(entry -> ColumnTransform.builder()
+                .sourceColumn(entry.getKey())
+                .targetColumn(entry.getValue())
+                .isOverWrite(false)
+                .build()
+            ).toList();
+        build.addColumnTransform(columnTransformList);
+
         filters.forEach(build::addFilter);
 
         return unitRepository.save(build);
     }
 
-    private Filter createDateFilter(){
+    private Filter createDateFilter() {
         DateRangeFilter build = DateRangeFilter.builder()
             .name("date_filter")
             .order(1)

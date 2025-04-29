@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Comment;
 import planit.massiverstandard.BaseEntity;
 import planit.massiverstandard.Executable;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Getter
-@Table(name = "groups")
+@Table(name = "massiver_st_groups")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Group extends BaseEntity implements Executable {
 
@@ -28,9 +29,11 @@ public class Group extends BaseEntity implements Executable {
     @Comment("활성화 여부")
     private Boolean isActive;
 
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GroupUnit> groupUnits = new ArrayList<>();
 
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Schedule> schedules = new ArrayList<>();
 

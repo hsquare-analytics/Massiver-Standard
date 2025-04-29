@@ -4,7 +4,6 @@ import org.mapstruct.MapperConfig;
 import org.mapstruct.ReportingPolicy;
 import planit.massiverstandard.columntransform.dto.ColumnTransformMapper;
 import planit.massiverstandard.filter.dto.FilterMapper;
-import planit.massiverstandard.group.dto.mapper.Mapper;
 import planit.massiverstandard.unit.dto.UnitMapper;
 
 @MapperConfig(

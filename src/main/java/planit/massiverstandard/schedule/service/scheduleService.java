@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import planit.massiverstandard.batch.usecase.CheckSchedule;
 import planit.massiverstandard.batch.usecase.ExecuteSchedule;
-import planit.massiverstandard.group.dto.mapper.Mapper;
+import planit.massiverstandard.config.Mapper;
 import planit.massiverstandard.group.entity.Group;
 import planit.massiverstandard.group.service.FindGroup;
 import planit.massiverstandard.schedule.Schedule;

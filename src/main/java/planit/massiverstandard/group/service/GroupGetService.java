@@ -3,7 +3,7 @@ package planit.massiverstandard.group.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import planit.massiverstandard.group.dto.mapper.Mapper;
+import planit.massiverstandard.config.Mapper;
 import planit.massiverstandard.group.dto.response.GroupResultDto;
 import planit.massiverstandard.group.entity.Group;
 import planit.massiverstandard.group.repository.GroupRepository;

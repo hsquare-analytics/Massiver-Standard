@@ -1,28 +1,29 @@
 package planit.massiverstandard.filter.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import planit.massiverstandard.unit.entity.Unit;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Getter
 @Entity
 @DiscriminatorValue(value = "API")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "massiver_st_api_filter")
 public class ApiFilter extends Filter {
 
     private String method; // GET, POST, PUT, DELETE
     private String url;
 
+    @Builder
     public ApiFilter(Unit unit, String name, int order, String method, String url) {
         super(unit, name, order);
         this.url = url;

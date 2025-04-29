@@ -24,3 +24,19 @@ logging:
     org.hibernate.orm.jdbc.extract: trace  # (Optional) ResultSet 추출 로그
 server:
   port: 2025
+
+init:
+  datasource:
+    enabled: true
+    source:
+      database: ~/massiver-source
+      host: localhost
+      port: 9092
+      username: sa
+      password: sa!
+    target:
+      database: ~/massiver-target
+      host: localhost
+      port: 9092
+      username: sa
+      password: sa

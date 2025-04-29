@@ -3,7 +3,7 @@ package planit.massiverstandard.unit.dto.response;
 import lombok.Data;
 import lombok.Getter;
 import planit.massiverstandard.columntransform.ColumnTransform;
-import planit.massiverstandard.database.DataBase;
+import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.filter.entity.Filter;
 
 import java.time.LocalDateTime;
@@ -16,11 +16,11 @@ public class UnitResponseDto {
 
     private UUID id;
     private String name;
-    private DataBase sourceDb;
+    private DataSource sourceDb;
     private String sourceSchema;
     private String sourceTable;
 
-    private DataBase targetDb;
+    private DataSource targetDb;
     private String targetSchema;
     private String targetTable;
 
@@ -32,10 +32,10 @@ public class UnitResponseDto {
 
     public UnitResponseDto(UUID id,
                            String name,
-                           DataBase sourceDb,
+                           DataSource sourceDb,
                            String sourceSchema,
                            String sourceTable,
-                           DataBase targetDb,
+                           DataSource targetDb,
                            String targetSchema,
                            String targetTable,
                            List<ColumnTransform> columnTransforms,

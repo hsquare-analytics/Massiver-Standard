@@ -2,6 +2,7 @@ package planit.massiverstandard.filter.entity;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +16,8 @@ import java.util.Map;
 @Entity
 @DiscriminatorValue(value = "DATE_RANGE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DateRangeFilter extends Filter {
+@Table(name = "massiver_st_date_range_filter")
+public class DateRangeFilter extends Filter implements WhereFilter{
 
 
     private String columnName; // 날짜/시간 컬럼 이름
@@ -44,6 +46,7 @@ public class DateRangeFilter extends Filter {
         return item;
     }
 
+    @Override
     public void addCondition(StringBuilder sql) {
         if (fixedStartDate != null && fixedEndDate != null) {
             sql.append(" AND ").append(columnName).append(" BETWEEN '")

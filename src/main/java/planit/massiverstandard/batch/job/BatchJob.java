@@ -21,13 +21,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.transaction.PlatformTransactionManager;
+import planit.massiverstandard.datasource.entity.DataSource;
+import planit.massiverstandard.datasource.util.DataSourceResolver;
 import planit.massiverstandard.filter.entity.DateRangeFilter;
 import planit.massiverstandard.filter.entity.Filter;
+import planit.massiverstandard.filter.entity.SqlFilter;
+import planit.massiverstandard.filter.entity.WhereFilter;
 import planit.massiverstandard.unit.entity.Unit;
 import planit.massiverstandard.unit.service.FindUnit;
 import planit.massiverstandard.unit.service.UnitGetService;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,21 +75,21 @@ public class BatchJob {
     public JdbcCursorItemReader<Map<String, Object>> reader(@Value("#{jobParameters['unitId']}") String unitId, UnitGetService unitGetService) {
 
         Unit unit = unitGetService.byId(UUID.fromString(unitId));
-        DataSource dataSource = unit.getSourceDb().createDataSource();
+        javax.sql.DataSource dataSource = DataSourceResolver.createDataSource(unit.getSourceDb());
 
         JdbcCursorItemReader<Map<String, Object>> reader = new JdbcCursorItemReader<>();
 
         StringBuilder sql = new StringBuilder("""
             SELECT *
-            FROM """ + " " + unit.getSourceSchema() + "." + unit.getSourceTable() + " " +"""
+            FROM """ + " " + unit.getSourceSchema() + "." + unit.getSourceTable() + " " + """
             WHERE 1=1
             """);
 
         unit.getFilters().stream()
-            .filter(filter -> filter instanceof DateRangeFilter)
+            .filter(filter -> filter instanceof DateRangeFilter | filter instanceof SqlFilter)
             .forEach(filter -> {
-                DateRangeFilter dateRangeFilter = (DateRangeFilter) filter;
-                dateRangeFilter.addCondition(sql);
+                WhereFilter whereFilter = (WhereFilter) filter;
+                whereFilter.addCondition(sql);
             });
 
         reader.setDataSource(dataSource);
@@ -123,7 +126,8 @@ public class BatchJob {
     public JdbcBatchItemWriter<Map<String, Object>> writer(@Value("#{jobParameters['unitId']}") String unitId) {
 
         Unit unit = findUnit.byId(UUID.fromString(unitId));
-        DataSource targetDataSource = unit.getTargetDb().createDataSource();
+        DataSource targetDs = unit.getTargetDb();
+        javax.sql.DataSource targetDataSource = DataSourceResolver.createDataSource(targetDs);
         String targetSchema = unit.getTargetSchema();
         String targetTable = unit.getTargetTable();
 

@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Getter
 @Entity
-@Table(name = "schedule")
+@Table(name = "massiver_st_schedule")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Schedule extends BaseEntity {
 

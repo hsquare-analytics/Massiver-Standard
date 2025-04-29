@@ -4,9 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import planit.massiverstandard.columntransform.dto.ColumnTransformDto;
-import planit.massiverstandard.columntransform.dto.ColumnTransformRequestDto;
 import planit.massiverstandard.filter.dto.FilterDto;
-import planit.massiverstandard.filter.dto.FilterRequestDto;
 
 import java.util.List;
 import java.util.UUID;

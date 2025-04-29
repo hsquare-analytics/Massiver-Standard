@@ -13,8 +13,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import planit.massiverstandard.DataInitializer;
 import planit.massiverstandard.columntransform.dto.ColumnTransformDto;
-import planit.massiverstandard.database.DataBase;
-import planit.massiverstandard.database.DataBaseService;
+import planit.massiverstandard.datasource.entity.DataSource;
+import planit.massiverstandard.datasource.service.DataSourceService;
 import planit.massiverstandard.unit.entity.Unit;
 import planit.massiverstandard.unit.service.UnitService;
 import planit.massiverstandard.unit.dto.UnitDto;
@@ -34,10 +34,10 @@ class BatchJobLauncherTest {
     BatchJobLauncher batchJobLauncher;
 
     @Autowired
-    DataBaseService dataBaseService;
+    DataSourceService dataSourceService;
 
-    private DataBase sourceDataBase;
-    private DataBase targetDataBase;
+    private DataSource sourceDataSource;
+    private DataSource targetDataSource;
 
     private JdbcTemplate sourceJdbcTemplate;
     private JdbcTemplate targetJdbcTemplate;
@@ -82,7 +82,7 @@ class BatchJobLauncherTest {
     }
 
     void dataDataBaseSetUp() {
-        DataBase sourceDataBase = new DataBase(
+        DataSource sourceDataSource = new DataSource(
             "massiver-target",        // name: 데이터베이스 이름
             "h2:mem",                 // groupUnitType: 메모리 기반 H2
             "",                       // host: 필요 없음
@@ -92,7 +92,7 @@ class BatchJobLauncherTest {
             "H2 in-memory DB"         // description: 설명 추가
         );
 
-        DataBase targetDataBase = new DataBase(
+        DataSource targetDataSource = new DataSource(
             "massiver-source",        // name: 데이터베이스 이름
             "h2:mem",                 // groupUnitType: 메모리 기반 H2
             "",                       // host: 필요 없음
@@ -102,11 +102,11 @@ class BatchJobLauncherTest {
             "H2 in-memory DB"         // description: 설명 추가
         );
 
-        this.sourceDataBase = dataBaseService.createDataBase(sourceDataBase);
-        this.targetDataBase = dataBaseService.createDataBase(targetDataBase);
+        this.sourceDataSource = dataSourceService.createDataBase(sourceDataSource);
+        this.targetDataSource = dataSourceService.createDataBase(targetDataSource);
 
-        this.sourceJdbcTemplate = new JdbcTemplate(sourceDataBase.createDataSource());
-        this.targetJdbcTemplate = new JdbcTemplate(targetDataBase.createDataSource());
+        this.sourceJdbcTemplate = new JdbcTemplate(sourceDataSource.createDataSource());
+        this.targetJdbcTemplate = new JdbcTemplate(targetDataSource.createDataSource());
     }
 
     @AfterEach
@@ -122,7 +122,7 @@ class BatchJobLauncherTest {
     void testCreateJob() throws Exception {
         // 1️⃣ 테스트용 ETL Unit 생성
         UnitDto unitDto = DataInitializer.createUnitDto(
-            sourceDataBase.getId(), targetDataBase.getId(),
+            sourceDataSource.getId(), targetDataSource.getId(),
             "public", sourceTable, "public", targetTable,
             List.of(
                 new ColumnTransformDto("id", "id"),
@@ -151,7 +151,7 @@ class BatchJobLauncherTest {
     void testColumnMapping() throws Exception {
         // 1️⃣ 테스트용 ETL Unit 생성
         UnitDto unitDto = DataInitializer.createUnitDto(
-            sourceDataBase.getId(), targetDataBase.getId(),
+            sourceDataSource.getId(), targetDataSource.getId(),
             "public", sourceTable, "public", targetTable,
             List.of(
                 new ColumnTransformDto("id", "id"),

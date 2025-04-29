@@ -3,8 +3,10 @@ package planit.massiverstandard.columntransform;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 import planit.massiverstandard.BaseEntity;
 import planit.massiverstandard.unit.entity.Unit;
 
@@ -13,6 +15,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "massiver_st_column_transform")
 public class ColumnTransform extends BaseEntity {
 
     @Id
@@ -24,14 +27,33 @@ public class ColumnTransform extends BaseEntity {
     @JoinColumn(name = "unit_id")
     private Unit unit;
 
+    @Comment("덮어쓰기 여부")
+    private boolean isOverWrite;
+
+    @Comment("소스 컬럼명")
     private String sourceColumn;
+
+    @Comment("타겟 컬럼명")
     private String targetColumn;
 
-    public ColumnTransform(Unit unit, String sourceColumn, String targetColumn) {
+    @Builder
+    public ColumnTransform(Unit unit, String sourceColumn, String targetColumn, boolean isOverWrite) {
         this.id = UUID.randomUUID();
         this.unit = unit;
         this.sourceColumn = sourceColumn;
         this.targetColumn = targetColumn;
+        this.isOverWrite = isOverWrite;
     }
 
+    public static ColumnTransform withOutUnitOf(String sourceColumn, String targetColumn, boolean isOverWrite) {
+        return ColumnTransform.builder()
+            .sourceColumn(sourceColumn)
+            .targetColumn(targetColumn)
+            .isOverWrite(isOverWrite)
+            .build();
+    }
+
+    public void assignUnit(Unit unit) {
+        this.unit = unit;
+    }
 }

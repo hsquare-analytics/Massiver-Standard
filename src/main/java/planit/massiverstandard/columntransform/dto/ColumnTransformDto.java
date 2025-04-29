@@ -8,6 +8,7 @@ import lombok.Getter;
 @Data
 @AllArgsConstructor
 public class ColumnTransformDto {
+    private boolean isOverWrite;
     private String sourceColumn;
     private String targetColumn;
 }

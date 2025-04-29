@@ -2,7 +2,7 @@ package planit.massiverstandard;
 
 import planit.massiverstandard.columntransform.ColumnTransform;
 import planit.massiverstandard.columntransform.dto.ColumnTransformDto;
-import planit.massiverstandard.database.DataBase;
+import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.filter.dto.FilterDto;
 import planit.massiverstandard.unit.entity.Unit;
 import planit.massiverstandard.unit.dto.UnitDto;
@@ -12,8 +12,8 @@ import java.util.UUID;
 
 public class DataInitializer {
 
-    public static DataBase createDataBase() {
-        return new DataBase(
+    public static DataSource createDataBase() {
+        return new DataSource(
             "massiver-target",        // name: 데이터베이스 이름
             "h2:mem",                 // groupUnitType: 메모리 기반 H2
             "",                       // host: 필요 없음

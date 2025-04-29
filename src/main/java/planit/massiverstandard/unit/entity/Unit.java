@@ -5,11 +5,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.BatchSize;
 import planit.massiverstandard.BaseEntity;
 import planit.massiverstandard.Executable;
 import planit.massiverstandard.columntransform.ColumnTransform;
-import planit.massiverstandard.database.DataBase;
+import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.filter.entity.Filter;
 
 import java.util.ArrayList;
@@ -19,6 +18,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "massiver_st_unit")
 public class Unit extends BaseEntity implements Executable {
 
     @Id
@@ -28,7 +28,7 @@ public class Unit extends BaseEntity implements Executable {
 
     @ManyToOne
     @JoinColumn(name = "source_db_id")
-    private DataBase sourceDb;
+    private DataSource sourceDb;
 
     @Column(nullable = false)
     private String sourceSchema;
@@ -38,7 +38,7 @@ public class Unit extends BaseEntity implements Executable {
 
     @ManyToOne
     @JoinColumn(name = "target_db_id")
-    private DataBase targetDb;
+    private DataSource targetDb;
 
     @Column(nullable = false)
     private String targetSchema;
@@ -56,12 +56,14 @@ public class Unit extends BaseEntity implements Executable {
     @Builder
     public Unit(
         String name,
-        DataBase sourceDb,
+        DataSource sourceDb,
         String sourceSchema,
         String sourceTable,
-        DataBase targetDb,
+        DataSource targetDb,
         String targetSchema,
-        String targetTable
+        String targetTable,
+        List<ColumnTransform> columnTransforms,
+        List<Filter> filters
     ) {
         if (name == null || sourceDb == null || sourceTable == null || targetDb == null || targetTable == null) {
             throw new IllegalArgumentException("ETL Unit의 필수 필드를 입력해야 합니다.");
@@ -74,16 +76,50 @@ public class Unit extends BaseEntity implements Executable {
         this.targetDb = targetDb;
         this.targetSchema = targetSchema;
         this.targetTable = targetTable;
+        if (columnTransforms != null) {
+            addColumnTransform(columnTransforms);
+        }
+        if (filters != null) {
+            addFilter(filters);
+        }
     }
 
-    public void addColumnTransform(String sourceColumn, String targetColumn) {
-        ColumnTransform columnTransform = new ColumnTransform(this, sourceColumn, targetColumn);
-        columnTransforms.add(columnTransform);
+    public void addColumnTransform(List<ColumnTransform> columnTransforms) {
+
+        this.columnTransforms.clear();
+
+        for (ColumnTransform columnTransform : columnTransforms) {
+            columnTransform.assignUnit(this);
+            this.columnTransforms.add(columnTransform);
+        }
+    }
+
+    public void addFilter(List<Filter> filters) {
+
+        this.filters.clear();
+
+        for (Filter filter : filters) {
+            filter.assignUnit(this);
+            this.filters.add(filter);
+        }
     }
 
     public void addFilter(Filter filter) {
         filter.assignUnit(this);
         filters.add(filter);
+    }
+
+    public void update(Unit updateUnit) {
+        this.name = updateUnit.getName();
+        this.sourceDb = updateUnit.getSourceDb();
+        this.sourceSchema = updateUnit.getSourceSchema();
+        this.sourceTable = updateUnit.getSourceTable();
+        this.targetDb = updateUnit.getTargetDb();
+        this.targetSchema = updateUnit.getTargetSchema();
+        this.targetTable = updateUnit.getTargetTable();
+
+        addColumnTransform(updateUnit.getColumnTransforms());
+        addFilter(updateUnit.getFilters());
     }
 
 }

@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import planit.massiverstandard.unit.entity.Unit;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import static planit.massiverstandard.group.entity.GroupUnitType.GROUP;
 
 @Entity
 @Getter
-@Table(name = "group_unit")
+@Table(name = "massiver_st_group_unit")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GroupUnit {
 
@@ -40,9 +41,10 @@ public class GroupUnit {
     private GroupUnitType groupUnitType;
 
     // DAG 기반 실행 순서를 위한 depends_on 관계 추가 (해당 UNIT이 실행되기 위해 선행되어야 하는 UNIT들)
+    @BatchSize(size = 100)
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "group_unit_dependency",
+        name = "massiver_st_group_unit_dependency",
         joinColumns = @JoinColumn(name = "group_unit_id"),
         inverseJoinColumns = @JoinColumn(name = "depends_on_group_unit_id")
     )
