@@ -1,5 +1,6 @@
 package planit.massiverstandard.filter.serivce;
 
+import planit.massiverstandard.exception.filter.UnsupportedFilterTypeException;
 import planit.massiverstandard.filter.entity.ApiFilter;
 import planit.massiverstandard.filter.entity.Filter;
 import planit.massiverstandard.filter.entity.SqlFilter;
@@ -13,7 +14,7 @@ public class FilterService {
             case "SQL" -> new SqlFilter(unit, filterDto.getName(), filterDto.getOrder(), filterDto.getSql());
             case "API" ->
                 new ApiFilter(unit, filterDto.getName(), filterDto.getOrder(), filterDto.getMethod(), filterDto.getUrl());
-            default -> throw new IllegalArgumentException("지원하지 않는 필터 타입입니다");
+            default -> throw new UnsupportedFilterTypeException("지원하지 않는 필터 타입입니다");
         };
     }
 
@@ -30,7 +31,7 @@ public class FilterService {
                 .method(filterDto.getMethod())
                 .url(filterDto.getUrl())
                 .build();
-            default -> throw new IllegalArgumentException("지원하지 않는 필터 타입입니다");
+            default -> throw new UnsupportedFilterTypeException("지원하지 않는 필터 타입입니다");
         };
     }
 }

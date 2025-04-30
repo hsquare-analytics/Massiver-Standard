@@ -15,12 +15,15 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
+import org.springframework.batch.item.support.CompositeItemWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
+import planit.massiverstandard.columntransform.ColumnTransform;
 import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.datasource.util.DataSourceResolver;
 import planit.massiverstandard.filter.entity.DateRangeFilter;
@@ -121,13 +124,63 @@ public class BatchJob {
 
     }
 
+//    @Bean
+//    @StepScope
+//    public JdbcBatchItemWriter<Map<String, Object>> writer(@Value("#{jobParameters['unitId']}") String unitId) {
+//
+//        Unit unit = findUnit.byId(UUID.fromString(unitId));
+//        DataSource targetDs = unit.getTargetDb();
+//        javax.sql.DataSource targetDataSource = DataSourceResolver.createDataSource(targetDs);
+//        String targetSchema = unit.getTargetSchema();
+//        String targetTable = unit.getTargetTable();
+//
+//        Map<String, String> columnMapping = new HashMap<>();
+//        // map으로 변환
+//        unit.getColumnTransforms().forEach(
+//            c -> columnMapping.put(c.getTargetColumn(), c.getSourceColumn())
+//        );
+//
+//        String sql
+//            = "INSERT INTO " + targetSchema + "." + targetTable + " ("
+//            + String.join(", ", columnMapping.keySet())
+//            + ") VALUES ("
+//            + String.join(", ", columnMapping.keySet().stream().map(k -> ":" + k).toList())
+//            + ")";
+//
+//        return new JdbcBatchItemWriterBuilder<Map<String, Object>>()
+//            .dataSource(targetDataSource)
+//            .sql(sql)
+//            .itemSqlParameterSourceProvider(
+//                (Map<String, Object> item) -> {
+//                    MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+//                    columnMapping.forEach(
+//                        (targetColumn, sourceColumn) -> parameterSource.addValue(targetColumn, item.get(sourceColumn))
+//                    );
+//                    return parameterSource;
+//                }
+//            )
+//            .build();
+//    }
+
     @Bean
     @StepScope
-    public JdbcBatchItemWriter<Map<String, Object>> writer(@Value("#{jobParameters['unitId']}") String unitId) {
+    public ItemWriter<Map<String, Object>> writer(@Value("#{jobParameters['unitId']}") String unitId) {
 
         Unit unit = findUnit.byId(UUID.fromString(unitId));
+        boolean isOverWrite = unit.getColumnTransforms().stream()
+            .anyMatch(ColumnTransform::isOverWrite);
+
         DataSource targetDs = unit.getTargetDb();
         javax.sql.DataSource targetDataSource = DataSourceResolver.createDataSource(targetDs);
+
+        if (isOverWrite) {
+            return new DeleteInsertItemWriter(
+                targetDataSource,
+                unit
+            );
+        }
+
+
         String targetSchema = unit.getTargetSchema();
         String targetTable = unit.getTargetTable();
 

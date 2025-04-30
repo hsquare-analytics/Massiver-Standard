@@ -23,4 +23,10 @@ public interface CommandDataSource {
     void update(UUID id, DataSourceCreateDto dataSource);
 
     void testConnection(DataSourceTestConnectionDto dataSource);
+
+    /**
+     * 데이터베이스 삭제
+     * @param id 데이터베이스 ID
+     */
+    void delete(UUID id);
 }

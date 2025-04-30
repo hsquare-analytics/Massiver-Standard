@@ -1,6 +1,7 @@
 package planit.massiverstandard.datasource.repository;
 
 import planit.massiverstandard.datasource.entity.DataSource;
+import planit.massiverstandard.unit.entity.Unit;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,4 +16,6 @@ public interface DataSourceRepository {
     List<DataSource> findAll();
 
     void deleteAll();
+
+    void deleteById(UUID id);
 }

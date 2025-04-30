@@ -4,11 +4,15 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import planit.massiverstandard.data.DataSourceJpaRepository;
 import planit.massiverstandard.datasource.dto.request.DataSourceCreateDto;
 import planit.massiverstandard.datasource.dto.request.DataSourceTestConnectionDto;
 import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.datasource.repository.DataSourceRepository;
 import planit.massiverstandard.datasource.util.DataSourceResolver;
+import planit.massiverstandard.exception.datasource.DataSourceUsingException;
+import planit.massiverstandard.unit.entity.Unit;
+import planit.massiverstandard.unit.service.FindUnit;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -22,6 +26,7 @@ public class DataSourceService implements CommandDataSource {
 
     private final DataSourceRepository dataSourceRepository;
     private final FindDataSource findDataSource;
+    private final FindUnit findUnit;
 
     @Override
     public DataSource create(DataSourceCreateDto dto) {
@@ -72,6 +77,14 @@ public class DataSourceService implements CommandDataSource {
         testConnection(dataSourceEntity);
     }
 
+    @Override
+    public void delete(UUID id) {
+        List<Unit> byDataSource = findUnit.findByDataSource(id);
+        if (!byDataSource.isEmpty()) {
+            throw new DataSourceUsingException("해당 데이터베이스는 사용중입니다.");
+        }
+        dataSourceRepository.deleteById(id);
+    }
 
     /**
      * * 데이터베이스 연결 테스트
@@ -91,6 +104,7 @@ public class DataSourceService implements CommandDataSource {
             throw new RuntimeException("DB 연결/풀 종료 중 오류", e);
         }
     }
+
     public List<DataSource> findAll() {
         return dataSourceRepository.findAll();
     }

@@ -9,6 +9,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Transactional;
 import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.datasource.entity.DataSourceType;
+import planit.massiverstandard.datasource.service.FindDataSource;
+import planit.massiverstandard.exception.common.UnsupportedProfileException;
 import planit.massiverstandard.initializer.dto.DataSourceProperties;
 import planit.massiverstandard.unit.entity.Unit;
 
@@ -34,15 +36,15 @@ public class TotalInitializer {
         return switch (profile) {
             case "local-h2" -> DataSourceType.H2_TCP;
             case "local-postgre" -> DataSourceType.POSTGRESQL;
-            default -> throw new IllegalArgumentException("지원하지 않는 프로파일: " + profile);
+            default -> throw new UnsupportedProfileException("지원하지 않는 프로파일: " + profile);
         };
     }
 
-    private String resolveSqlScript(String profile) {
+    private String resolveSqlScript(String profile, String type) {
         return switch (profile) {
-            case "local-h2" -> "sql/source.sql";
-            case "local-postgre" -> "sql/source_postgre.sql";
-            default -> throw new IllegalArgumentException("지원하지 않는 프로파일: " + profile);
+            case "local-h2" -> "sql/%s.sql".formatted(type);
+            case "local-postgre" -> "sql/%s_postgre.sql".formatted(type);
+            default -> throw new UnsupportedProfileException("지원하지 않는 프로파일: " + profile);
         };
     }
 
@@ -50,18 +52,11 @@ public class TotalInitializer {
     @Transactional
     public void init() {
 
-        if (!props.isEnabled()) {
-            log.info("[❗️데이터 초기화] 데이터 초기화가 비활성화되었습니다.");
-            return;
-        }
-
-        DataSource sourceDb;
-        DataSource targetDb;
-
         // application startup 또는 @PostConstruct 에서
         String[] activeProfiles = environment.getActiveProfiles();
 
-        sourceDb = databaseInitializer.init(
+
+        DataSource sourceDb = databaseInitializer.init(
             "massiver-source",
             resolveDataSourceType(activeProfiles[0]),
             props.getSource().getDatabase(),
@@ -70,7 +65,7 @@ public class TotalInitializer {
             props.getSource().getUsername(),
             props.getSource().getPassword()
         );
-        targetDb = databaseInitializer.init(
+        DataSource targetDb = databaseInitializer.init(
             "massiver-target",
             resolveDataSourceType(activeProfiles[0]),
             props.getTarget().getDatabase(),
@@ -80,18 +75,27 @@ public class TotalInitializer {
             props.getTarget().getPassword()
         );
 
-        String sourceSql = resolveSqlScript(activeProfiles[0]);
-        String targetSql = resolveSqlScript(activeProfiles[0]);
+        if (props.getEnabled().isSql()) {
 
-        sqlDataInitializer.init(sourceDb, sourceSql);
-        sqlDataInitializer.init(targetDb, targetSql);
-        log.info("[❗️데이터 초기화] SQL 초기화 완료");
+            String sourceSql = resolveSqlScript(activeProfiles[0], "source");
+            String targetSql = resolveSqlScript(activeProfiles[0], "target");
 
-        List<Unit> units = unitInitializer.init(sourceDb, targetDb);
-        log.info("[❗️데이터 초기화] UNIT 초기화 완료");
+            sqlDataInitializer.init(sourceDb, sourceSql);
+            sqlDataInitializer.init(targetDb, targetSql);
+            log.info("[❗️데이터 초기화] SQL 초기화 완료");
 
-        groupInitializer.init(units);
-        log.info("[❗️데이터 초기화] GROUP 초기화 완료");
+        }
+
+        if (!props.getEnabled().isDomain()) {
+
+            List<Unit> units = unitInitializer.init(sourceDb, targetDb);
+            log.info("[❗️데이터 초기화] UNIT 초기화 완료");
+
+            groupInitializer.init(units);
+            log.info("[❗️데이터 초기화] GROUP 초기화 완료");
+
+        }
+
 
     }
 }

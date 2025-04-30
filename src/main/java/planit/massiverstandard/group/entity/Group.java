@@ -9,10 +9,14 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Comment;
 import planit.massiverstandard.BaseEntity;
 import planit.massiverstandard.Executable;
+import planit.massiverstandard.exception.group.GroupNameRequireException;
 import planit.massiverstandard.group.dto.request.GroupDto;
 import planit.massiverstandard.schedule.Schedule;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Entity
@@ -39,9 +43,11 @@ public class Group extends BaseEntity implements Executable {
 
     @Builder
     public Group(String name, List<GroupUnit> groupUnits) {
+
         if (name == null) {
-            throw new IllegalArgumentException("ETL Group 이름을 입력해야 합니다.");
+            throw new GroupNameRequireException("ETL Group 이름을 입력해야 합니다.");
         }
+
         this.id = UUID.randomUUID();
         this.name = name;
         this.isActive = false;

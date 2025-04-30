@@ -1,6 +1,7 @@
 package planit.massiverstandard.datasource.util;
 
 import planit.massiverstandard.datasource.entity.DataSource;
+import planit.massiverstandard.exception.datasource.UnsupportedDataSourceTypeException;
 
 public class DataSourceResolver {
 
@@ -30,7 +31,7 @@ public class DataSourceResolver {
                 driverClassName = "org.postgresql.Driver";
             }
             // 필요에 따라 다른 DB 타입 추가…
-            default -> throw new IllegalArgumentException("Unsupported DataSourceType: " + dataSource.getType());
+            default -> throw new UnsupportedDataSourceTypeException("지원하지 않는 데이터베이스 타입입니다: " + dataSource.getType());
         }
 
         return org.springframework.boot.jdbc.DataSourceBuilder.create()

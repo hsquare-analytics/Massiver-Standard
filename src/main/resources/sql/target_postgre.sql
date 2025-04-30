@@ -68,6 +68,12 @@ CREATE TABLE IF NOT EXISTS target_table_date (
     date_col TIMESTAMP
     );
 
+CREATE TABLE IF NOT EXISTS target_table_date_massive (
+                                                         id        BIGINT       PRIMARY KEY,
+                                                         col1      VARCHAR(100),
+    col2      VARCHAR(100),
+    date_col  TIMESTAMP
+    );
 
 -- ================================================
 -- 테이블 초기화 (한 번에)
@@ -83,5 +89,6 @@ TRUNCATE
     target_table_h,
     target_table_i,
     target_table_j,
-    target_table_date
+    target_table_date,
+    target_table_date_massive
 RESTART IDENTITY;

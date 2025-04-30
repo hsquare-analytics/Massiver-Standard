@@ -9,6 +9,7 @@ import planit.massiverstandard.BaseEntity;
 import planit.massiverstandard.Executable;
 import planit.massiverstandard.columntransform.ColumnTransform;
 import planit.massiverstandard.datasource.entity.DataSource;
+import planit.massiverstandard.exception.unit.UnitFieldsRequireException;
 import planit.massiverstandard.filter.entity.Filter;
 
 import java.util.ArrayList;
@@ -46,10 +47,10 @@ public class Unit extends BaseEntity implements Executable {
     @Column(nullable = false)
     private String targetTable;
 
-    @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ColumnTransform> columnTransforms = new ArrayList<>();
 
-    @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Filter> filters = new ArrayList<>();
 
     // 📌 Aggregate Root이므로 생성자에서 유효성 검사 수행
@@ -66,7 +67,7 @@ public class Unit extends BaseEntity implements Executable {
         List<Filter> filters
     ) {
         if (name == null || sourceDb == null || sourceTable == null || targetDb == null || targetTable == null) {
-            throw new IllegalArgumentException("ETL Unit의 필수 필드를 입력해야 합니다.");
+            throw new UnitFieldsRequireException("ETL Unit의 필수 필드를 입력해야 합니다.");
         }
         this.id = UUID.randomUUID();
         this.name = name;

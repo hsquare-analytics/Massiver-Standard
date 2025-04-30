@@ -7,7 +7,7 @@ import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.filter.entity.DateRangeFilter;
 import planit.massiverstandard.filter.entity.Filter;
 import planit.massiverstandard.unit.entity.Unit;
-import planit.massiverstandard.unit.repository.UnitJpaRepository;
+import planit.massiverstandard.unit.repository.UnitRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UnitInitializer {
 
-    private final UnitJpaRepository unitRepository;
+    private final UnitRepository unitRepository;
 
     public List<Unit> init(DataSource sourceDb, DataSource targetDb) {
 

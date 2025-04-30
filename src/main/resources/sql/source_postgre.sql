@@ -68,6 +68,13 @@ CREATE TABLE IF NOT EXISTS source_table_date (
     date_col  TIMESTAMP
     );
 
+CREATE TABLE IF NOT EXISTS source_table_date_massive (
+                                                 id        BIGINT       PRIMARY KEY,
+                                                 col1      VARCHAR(100),
+    col2      VARCHAR(100),
+    date_col  TIMESTAMP
+    );
+
 
 -- ================================================
 -- 테이블 초기화 (한 번에)
@@ -83,7 +90,8 @@ TRUNCATE
     source_table_h,
     source_table_i,
     source_table_j,
-    source_table_date
+    source_table_date,
+    source_table_date_massive
 RESTART IDENTITY;
 
 
@@ -94,6 +102,15 @@ RESTART IDENTITY;
 -- A 테이블에 1~5,000,000 까지 대량 생성
 INSERT INTO source_table_a (id, col1, col2)
 SELECT gs, 'val' || gs, 'val' || gs
+FROM generate_series(1, 5000000) AS gs;
+
+INSERT INTO source_table_date_massive (id, col1, col2, date_col)
+SELECT
+    gs,
+    'val' || gs,
+    'val' || gs,
+    DATE '2025-01-01' + (gs - 1) * INTERVAL '1 day'
+-- gs=1 → 2025-01-01, gs=2 → 2025-01-02, …, gs=5000000 → (2025-01-01 + 4999999일)
 FROM generate_series(1, 5000000) AS gs;
 
 -- 나머지 테이블에는 소량 샘플 데이터

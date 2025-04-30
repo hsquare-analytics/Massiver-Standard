@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import planit.massiverstandard.config.Mapper;
+import planit.massiverstandard.exception.group.GroupNotFoundException;
 import planit.massiverstandard.group.dto.response.GroupResultDto;
 import planit.massiverstandard.group.entity.Group;
 import planit.massiverstandard.group.repository.GroupRepository;
@@ -20,7 +21,7 @@ public class GroupGetService implements FindGroup{
     @Override
     @Transactional(readOnly = true)
     public Group byId(UUID id) {
-        return groupRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Group을 찾을 수 없습니다"));
+        return groupRepository.findById(id).orElseThrow(() -> new GroupNotFoundException("Group을 찾을 수 없습니다"));
     }
 
     @Override

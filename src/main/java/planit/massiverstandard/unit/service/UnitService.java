@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import planit.massiverstandard.columntransform.ColumnTransform;
-import planit.massiverstandard.columntransform.dto.ColumnTransformDto;
 import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.datasource.service.DataSourceService;
+import planit.massiverstandard.exception.unit.UnitInGroupException;
 import planit.massiverstandard.filter.dto.FilterDto;
 import planit.massiverstandard.filter.entity.Filter;
 import planit.massiverstandard.filter.serivce.FilterService;
@@ -14,7 +14,7 @@ import planit.massiverstandard.group.service.GroupUnitService;
 import planit.massiverstandard.unit.dto.UnitDto;
 import planit.massiverstandard.unit.dto.request.UnitUpdateDto;
 import planit.massiverstandard.unit.entity.Unit;
-import planit.massiverstandard.unit.repository.UnitJpaRepository;
+import planit.massiverstandard.unit.repository.UnitRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UnitService implements CommandUnit {
 
-    private final UnitJpaRepository unitRepository;
+    private final UnitRepository unitRepository;
     private final GroupUnitService groupUnitService;
     private final DataSourceService dataSourceService;
     private final UnitGetService unitGetService;
@@ -70,7 +70,7 @@ public class UnitService implements CommandUnit {
     @Transactional
     public void deleteUnit(UUID id) {
         if (groupUnitService.istExistByUnit(id)) {
-            throw new IllegalArgumentException("Unit이 그룹에 속해있어 삭제할 수 없습니다");
+            throw new UnitInGroupException("Unit이 그룹에 속해있어 삭제할 수 없습니다");
         }
         Unit unit = unitGetService.byId(id);
         unitRepository.deleteById(unit.getId());

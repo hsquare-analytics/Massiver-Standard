@@ -27,7 +27,9 @@ server:
 
 init:
   datasource:
-    enabled: true
+    enabled:
+      sql: true
+      domain: true
     source:
       database: ~/massiver-source
       host: localhost

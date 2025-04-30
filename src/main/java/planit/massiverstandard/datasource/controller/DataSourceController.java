@@ -50,6 +50,12 @@ public class DataSourceController {
         commandDataSource.update(id, updateDto);
     }
 
+    @Operation(summary = "데이터베이스 삭제", description = "데이터베이스를 삭제합니다.")
+    @DeleteMapping("/{id}")
+    public void deleteDataBase(@PathVariable UUID id) {
+        commandDataSource.delete(id);
+    }
+
     @Operation(summary = "데이터베이스 목록 조회", description = "데이터베이스 목록을 조회합니다.")
     @GetMapping
     public List<DataSource> findAll() {

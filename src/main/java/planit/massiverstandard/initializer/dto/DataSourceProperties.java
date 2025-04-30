@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class DataSourceProperties {
 
-    private boolean enabled;
+    private EnableProps enabled;
     private DataProps source;
     private DataProps target;
 
@@ -21,5 +21,11 @@ public class DataSourceProperties {
         private String port;
         private String username;
         private String password;
+    }
+
+    @Data
+    public static class EnableProps {
+        private boolean sql;
+        private boolean domain;
     }
 }
