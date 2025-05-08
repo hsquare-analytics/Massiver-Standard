@@ -1,0 +1,44 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://10.111.33.7:5432/massiver
+    driver-class-name: org.postgresql.Driver
+    username: massiver
+    password: msv1113!@
+  batch:
+    jdbc:
+      initialize-schema: always
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update  # ?????? ?? ? ??? ?? ????
+    show-sql: true  # SQL ?? ?? ???
+    properties:
+      hibernate.format_sql: true
+      hibernate.use_sql_comments: true
+      hibernate.type: trace   # 👈 바인딩된 파라미터 값까지 로그에 찍힘!
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace  # 🔥 Hibernate 6.2+ 바인딩값 로그
+    org.hibernate.orm.jdbc.extract: trace  # (Optional) ResultSet 추출 로그
+server:
+  port: 11113
+
+init:
+  datasource:
+    enabled:
+     sql: false
+     domain: false
+    source:
+      database:
+      host:
+      port:
+      username:
+      password:
+    target:
+      database:
+      host:
+      port:
+      username:
+      password:
+

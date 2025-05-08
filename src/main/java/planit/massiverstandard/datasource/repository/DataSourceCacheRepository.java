@@ -2,6 +2,7 @@ package planit.massiverstandard.datasource.repository;
 
 import org.springframework.stereotype.Repository;
 import planit.massiverstandard.datasource.entity.DataSource;
+import planit.massiverstandard.datasource.service.FindRealDataSource;
 import planit.massiverstandard.datasource.util.DataSourceResolver;
 
 import java.util.Map;
@@ -9,14 +10,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-public class DataSourceCacheRepository {
+public class DataSourceCacheRepository implements FindRealDataSource {
 
     private final Map<UUID, javax.sql.DataSource> dataSourceCache = new ConcurrentHashMap<>();
 
     public javax.sql.DataSource getOrCreateDataSource(DataSource dataSource) {
-        return dataSourceCache.computeIfAbsent(dataSource.getId(), id -> {
-            return DataSourceResolver.createDataSource(dataSource);
-        });
+        return dataSourceCache.computeIfAbsent(dataSource.getId(), id -> DataSourceResolver.createDataSource(dataSource));
     }
 
     public void updateDataSource(DataSource dataSource) {

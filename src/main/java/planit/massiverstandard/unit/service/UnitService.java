@@ -14,6 +14,7 @@ import planit.massiverstandard.group.service.GroupUnitService;
 import planit.massiverstandard.unit.dto.UnitDto;
 import planit.massiverstandard.unit.dto.request.UnitUpdateDto;
 import planit.massiverstandard.unit.entity.Unit;
+import planit.massiverstandard.unit.entity.UnitType;
 import planit.massiverstandard.unit.repository.UnitRepository;
 
 import java.util.List;
@@ -35,10 +36,15 @@ public class UnitService implements CommandUnit {
     @Transactional
     public Unit createUnit(UnitDto unitDto) {
 
+        if (unitDto.getType() == UnitType.PROCEDURE) {
+            return saveProcedureUnit(unitDto);
+        }
+
         DataSource sourceDataSource = dataSourceService.findById(unitDto.getSourceDb());
         DataSource targetDataSource = dataSourceService.findById(unitDto.getTargetDb());
         Unit entity = Unit.builder()
             .name(unitDto.getName())
+            .type(unitDto.getType())
             .sourceDb(sourceDataSource)
             .sourceSchema(unitDto.getSourceSchema())
             .sourceTable(unitDto.getSourceTable())
@@ -54,6 +60,7 @@ public class UnitService implements CommandUnit {
                 .sourceColumn(columnTransformDto.getSourceColumn())
                 .targetColumn(columnTransformDto.getTargetColumn())
                 .isOverWrite(columnTransformDto.isOverWrite())
+                .targetColumnType(columnTransformDto.getTargetColumnType())
                 .build()
             ).toList();
 
@@ -65,6 +72,19 @@ public class UnitService implements CommandUnit {
         }
 
         return savedUnit;
+    }
+
+    private Unit saveProcedureUnit(UnitDto unitDto) {
+        DataSource targetDataSource = dataSourceService.findById(unitDto.getTargetDb());
+        Unit entity = Unit.builder()
+            .name(unitDto.getName())
+            .type(unitDto.getType())
+            .targetDb(targetDataSource)
+            .targetSchema(unitDto.getTargetSchema())
+            .targetTable(unitDto.getTargetTable())
+            .build();
+
+        return unitRepository.save(entity);
     }
 
     @Transactional
@@ -91,7 +111,8 @@ public class UnitService implements CommandUnit {
                 ColumnTransform.withOutUnitOf(
                     columnTransformDto.getSourceColumn(),
                     columnTransformDto.getTargetColumn(),
-                    columnTransformDto.isOverWrite()
+                    columnTransformDto.isOverWrite(),
+                    columnTransformDto.getTargetColumnType()
                 )
             )
             .toList();
@@ -103,6 +124,7 @@ public class UnitService implements CommandUnit {
 
         Unit entity = Unit.builder()
             .name(updateDto.name())
+            .type(updateDto.type())
             .sourceDb(sourceDataSource)
             .sourceSchema(updateDto.sourceSchema())
             .sourceTable(updateDto.sourceTable())

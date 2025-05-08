@@ -7,12 +7,12 @@ import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.filter.entity.DateRangeFilter;
 import planit.massiverstandard.filter.entity.Filter;
 import planit.massiverstandard.unit.entity.Unit;
+import planit.massiverstandard.unit.entity.UnitType;
 import planit.massiverstandard.unit.repository.UnitRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -30,10 +30,25 @@ public class UnitInitializer {
             String targetTableName = "TARGET_TABLE_" + (char) ('A' + i); // TARGET_TABLE_A, TARGET_TABLE_B, …
 
             Unit unit = createUnit(unitName, sourceDb, "PUBLIC", sourceTableName, targetDb, "PUBLIC", targetTableName,
-                Map.of(
-                    "id", "id",
-                    "col1", "col1",
-                    "col2", "col2"
+                List.of(
+                    ColumnTransform.builder()
+                        .sourceColumn("id")
+                        .targetColumn("id")
+                        .isOverWrite(false)
+                        .targetColumnType("BIGINT")
+                        .build(),
+                    ColumnTransform.builder()
+                        .sourceColumn("col1")
+                        .targetColumn("col1")
+                        .isOverWrite(false)
+                        .targetColumnType("VARCHAR(255)")
+                        .build(),
+                    ColumnTransform.builder()
+                        .sourceColumn("col2")
+                        .targetColumn("col2")
+                        .isOverWrite(false)
+                        .targetColumnType("VARCHAR(255)")
+                        .build()
                 ),
                 List.of());
 
@@ -45,11 +60,31 @@ public class UnitInitializer {
         String sourceTableName = "SOURCE_TABLE_date";
         String targetTableName = "TARGET_TABLE_date";
         Unit unit = createUnit(unitName, sourceDb, "PUBLIC", sourceTableName, targetDb, "PUBLIC", targetTableName,
-            Map.of(
-                "id", "id",
-                "col1", "col1",
-                "col2", "col2",
-                "date_col", "date_col"
+            List.of(
+                ColumnTransform.builder()
+                    .sourceColumn("id")
+                    .targetColumn("id")
+                    .isOverWrite(false)
+                    .targetColumnType("BIGINT")
+                    .build(),
+                ColumnTransform.builder()
+                    .sourceColumn("col1")
+                    .targetColumn("col1")
+                    .isOverWrite(false)
+                    .targetColumnType("VARCHAR(255)")
+                    .build(),
+                ColumnTransform.builder()
+                    .sourceColumn("col2")
+                    .targetColumn("col2")
+                    .isOverWrite(false)
+                    .targetColumnType("VARCHAR(255)")
+                    .build(),
+                ColumnTransform.builder()
+                    .sourceColumn("date_col")
+                    .targetColumn("date_col")
+                    .isOverWrite(false)
+                    .targetColumnType("DATE")
+                    .build()
             ),
             List.of(createDateFilter()));
         Unit save = unitRepository.save(unit);
@@ -57,9 +92,10 @@ public class UnitInitializer {
         return unitList;
     }
 
-    public Unit createUnit(String name, DataSource sourceDb, String sourceSchema, String sourceTable, DataSource targetDb, String targetSchema, String targetTable, Map<String, String> columnMap, List<Filter> filters) {
+    public Unit createUnit(String name, DataSource sourceDb, String sourceSchema, String sourceTable, DataSource targetDb, String targetSchema, String targetTable, List<ColumnTransform> columnTransformList, List<Filter> filters) {
         Unit build = Unit.builder()
             .name(name)
+            .type(UnitType.NORMAL)
             .sourceDb(sourceDb)
             .sourceSchema(sourceSchema)
             .sourceTable(sourceTable)
@@ -68,13 +104,6 @@ public class UnitInitializer {
             .targetTable(targetTable)
             .build();
 
-        List<ColumnTransform> columnTransformList = columnMap.entrySet().stream()
-            .map(entry -> ColumnTransform.builder()
-                .sourceColumn(entry.getKey())
-                .targetColumn(entry.getValue())
-                .isOverWrite(false)
-                .build()
-            ).toList();
         build.addColumnTransform(columnTransformList);
 
         filters.forEach(build::addFilter);

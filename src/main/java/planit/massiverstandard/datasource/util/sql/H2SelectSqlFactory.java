@@ -1,5 +1,7 @@
 package planit.massiverstandard.datasource.util.sql;
 
+import java.util.List;
+
 public class H2SelectSqlFactory implements SelectSqlFactory {
 
     @Override
@@ -76,6 +78,49 @@ public class H2SelectSqlFactory implements SelectSqlFactory {
                 """,
             schema.toUpperCase(),
             table.toUpperCase()
+        );
+    }
+
+    @Override
+    public String getProcedureList(String schema) {
+        // H2는 스키마명을 대문자로 관리
+        String sch = schema.toUpperCase();
+        return String.format("""
+        SELECT
+          r.ROUTINE_NAME           AS procedure_name,
+          COALESCE(
+            GROUP_CONCAT(
+              p.PARAMETER_MODE || ' ' ||
+              p.PARAMETER_NAME || ' ' ||
+              p.TYPE_NAME
+              ORDER BY p.ORDINAL_POSITION
+              SEPARATOR ', '
+            ), ''
+          ) AS procedure_arguments
+        FROM INFORMATION_SCHEMA.ROUTINES r
+        LEFT JOIN INFORMATION_SCHEMA.PARAMETERS p
+          ON p.SPECIFIC_SCHEMA = r.ROUTINE_SCHEMA
+         AND p.SPECIFIC_NAME   = r.SPECIFIC_NAME
+        WHERE r.ROUTINE_SCHEMA = '%s'
+          AND r.ROUTINE_TYPE   = 'PROCEDURE'
+        GROUP BY r.ROUTINE_NAME
+        ORDER BY r.ROUTINE_NAME;
+        """,
+            sch
+        );
+    }
+
+    @Override
+    public String getProcedureQuery(String schema, String procedureName, List<String> params) {
+        return String.format("""
+                SELECT ROUTINE_NAME
+                FROM INFORMATION_SCHEMA.ROUTINES
+                WHERE ROUTINE_SCHEMA = '%s'
+                  AND ROUTINE_NAME = '%s'
+                  AND ROUTINE_TYPE = 'PROCEDURE'
+                """,
+            schema.toUpperCase(),
+            procedureName.toUpperCase()
         );
     }
 }

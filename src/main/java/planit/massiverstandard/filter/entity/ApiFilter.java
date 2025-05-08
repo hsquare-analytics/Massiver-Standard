@@ -1,8 +1,6 @@
 package planit.massiverstandard.filter.entity;
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,11 +18,13 @@ import java.util.Map;
 @Table(name = "massiver_st_api_filter")
 public class ApiFilter extends Filter {
 
-    private String method; // GET, POST, PUT, DELETE
+    @Enumerated(EnumType.STRING)
+    @Column(name="http_method", length=10, nullable=false)
+    private FilterHttpMethod method; // GET, POST, PUT, DELETE
     private String url;
 
     @Builder
-    public ApiFilter(Unit unit, String name, int order, String method, String url) {
+    public ApiFilter(Unit unit, String name, int order, FilterHttpMethod method, String url) {
         super(unit, name, order);
         this.url = url;
         this.method = method;
@@ -40,7 +40,7 @@ public class ApiFilter extends Filter {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(item, headers);
 
         try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.valueOf(method.toUpperCase()), entity, String.class);
+            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.valueOf(method.name()), entity, String.class);
 
             // 응답 상태 확인: 200이 아니면 예외 발생
             if (responseEntity.getStatusCode() != HttpStatus.OK) {

@@ -28,7 +28,7 @@ server:
 init:
   datasource:
     enabled:
-     sql: true
+     sql: false
      domain: false
     source:
       database: pafc_db

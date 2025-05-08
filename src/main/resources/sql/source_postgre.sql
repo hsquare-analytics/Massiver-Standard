@@ -69,11 +69,14 @@ CREATE TABLE IF NOT EXISTS source_table_date (
     );
 
 CREATE TABLE IF NOT EXISTS source_table_date_massive (
-                                                 id        BIGINT       PRIMARY KEY,
-                                                 col1      VARCHAR(100),
+    id        BIGINT,
+    id2      BIGINT,
+    id3      BIGINT,
+    col1      VARCHAR(100),
     col2      VARCHAR(100),
-    date_col  TIMESTAMP
-    );
+    date_col  TIMESTAMP,
+    PRIMARY KEY (id, id2, id3)
+);
 
 
 -- ================================================
@@ -104,9 +107,11 @@ INSERT INTO source_table_a (id, col1, col2)
 SELECT gs, 'val' || gs, 'val' || gs
 FROM generate_series(1, 5000000) AS gs;
 
-INSERT INTO source_table_date_massive (id, col1, col2, date_col)
+INSERT INTO source_table_date_massive (id, id2, id3, col1, col2, date_col)
 SELECT
     gs,
+    gs + 1,
+    gs + 2,
     'val' || gs,
     'val' || gs,
     DATE '2025-01-01' + (gs - 1) * INTERVAL '1 day'

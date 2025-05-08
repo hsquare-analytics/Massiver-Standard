@@ -86,7 +86,7 @@ public class TotalInitializer {
 
         }
 
-        if (!props.getEnabled().isDomain()) {
+        if (props.getEnabled().isDomain()) {
 
             List<Unit> units = unitInitializer.init(sourceDb, targetDb);
             log.info("[❗️데이터 초기화] UNIT 초기화 완료");

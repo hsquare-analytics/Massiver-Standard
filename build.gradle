@@ -47,6 +47,9 @@ dependencies {
 
     // database
     implementation 'org.postgresql:postgresql'
+    // vertica
+    implementation 'com.vertica.jdbc:vertica-jdbc:24.2.0-0'
+
 }
 
 tasks.named('test') {

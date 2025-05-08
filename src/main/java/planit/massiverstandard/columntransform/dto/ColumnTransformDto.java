@@ -11,4 +11,5 @@ public class ColumnTransformDto {
     private boolean isOverWrite;
     private String sourceColumn;
     private String targetColumn;
+    private String targetColumnType;
 }

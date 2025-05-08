@@ -3,6 +3,7 @@ package planit.massiverstandard.unit.dto.request;
 import planit.massiverstandard.columntransform.dto.ColumnTransformDto;
 import planit.massiverstandard.filter.dto.FilterDto;
 import planit.massiverstandard.unit.entity.Unit;
+import planit.massiverstandard.unit.entity.UnitType;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,6 +11,7 @@ import java.util.UUID;
 /**
  * 유닛 업데이트 요청 DTO {@link Unit}
  * @param name Unit 이름
+ * @param type 유닛 타입
  * @param sourceDb 소스 DB ID
  * @param sourceSchema 소스 스키마
  * @param sourceTable 소스 테이블
@@ -21,6 +23,7 @@ import java.util.UUID;
  */
 public record UnitUpdateDto(
     String name,
+    UnitType type,
     UUID sourceDb,
     String sourceSchema,
     String sourceTable,

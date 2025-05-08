@@ -30,6 +30,11 @@ public class DataSourceResolver {
                 url = String.format("jdbc:postgresql://%s:%s/%s", dataSource.getHost(), dataSource.getPort(), dataSource.getDatabase());
                 driverClassName = "org.postgresql.Driver";
             }
+            case VERTICA -> {
+                // 예: jdbc:vertica://localhost:5433/mydb
+                url = String.format("jdbc:vertica://%s:%s/%s", dataSource.getHost(), dataSource.getPort(), dataSource.getDatabase());
+                driverClassName = "com.vertica.jdbc.Driver";
+            }
             // 필요에 따라 다른 DB 타입 추가…
             default -> throw new UnsupportedDataSourceTypeException("지원하지 않는 데이터베이스 타입입니다: " + dataSource.getType());
         }

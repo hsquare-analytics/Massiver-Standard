@@ -1,10 +1,12 @@
 package planit.massiverstandard.datasource.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import planit.massiverstandard.datasource.dto.response.ColumnInfoResult;
+import planit.massiverstandard.datasource.dto.response.ProcedureResult;
 import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.datasource.repository.DataSourceCacheRepository;
 import planit.massiverstandard.datasource.util.DataSourceQueryResolver;
@@ -13,6 +15,7 @@ import planit.massiverstandard.datasource.util.sql.SelectSqlFactory;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SqlExecuteService implements ExecuteSqlScript {
@@ -70,5 +73,33 @@ public class SqlExecuteService implements ExecuteSqlScript {
         );
 
         return jdbcTemplate.query(sql, mapper);
+    }
+
+    @Override
+    public List<ProcedureResult> getProcedures(DataSource dataSource, String schema) {
+        SelectSqlFactory selectSqlFactory = DataSourceQueryResolver.getSelectSqlFactory(dataSource.getType());
+        String sqlScript = selectSqlFactory.getProcedureList(schema);
+
+        JdbcTemplate jdbcTemplate =
+            new JdbcTemplate(dataSourceCacheRepository.getOrCreateDataSource(dataSource));
+
+        RowMapper<ProcedureResult> mapper = (rs, rowNum) -> new ProcedureResult(
+            rs.getString("procedure_name"),
+            rs.getString("procedure_arguments")
+        );
+
+        return jdbcTemplate.query(sqlScript, mapper);
+    }
+
+    @Override
+    public String getProcedureQuery(DataSource dataSource, String schema, String procedureName, List<String> params) {
+        SelectSqlFactory selectSqlFactory = DataSourceQueryResolver.getSelectSqlFactory(dataSource.getType());
+        String procedureQuery = selectSqlFactory.getProcedureQuery(schema, procedureName, params);
+
+        log.info("procedureQuery: {}", procedureQuery);
+        JdbcTemplate jdbcTemplate =
+            new JdbcTemplate(dataSourceCacheRepository.getOrCreateDataSource(dataSource));
+
+        return jdbcTemplate.queryForObject(procedureQuery, String.class);
     }
 }

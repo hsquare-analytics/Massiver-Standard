@@ -1,6 +1,7 @@
 package planit.massiverstandard.datasource.service;
 
 import planit.massiverstandard.datasource.dto.response.ColumnInfoResult;
+import planit.massiverstandard.datasource.dto.response.ProcedureResult;
 import planit.massiverstandard.datasource.entity.DataSource;
 
 import java.util.List;
@@ -21,4 +22,8 @@ public interface ExecuteSqlScript {
     List<String> getTables(DataSource dataSource, String schema);
 
     List<ColumnInfoResult> getColumns(DataSource dataSource, String schema, String table);
+
+    List<ProcedureResult> getProcedures(DataSource dataSource, String schema);
+
+    String getProcedureQuery(DataSource dataSource, String schema, String procedureName, List<String> params);
 }

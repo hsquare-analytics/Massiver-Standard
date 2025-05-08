@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import planit.massiverstandard.columntransform.dto.ColumnTransformRequest;
 import planit.massiverstandard.filter.dto.FilterRequestDto;
+import planit.massiverstandard.unit.entity.UnitType;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +17,9 @@ public class UnitRequest {
 
     @Schema(description = "단위 ETL 작업명", example = "ETL 작업")
     private String name;
+
+    @Schema(description = "유닛 타입", example = "NORMAL")
+    private UnitType type;
 
     @Schema(description = "소스 DB ID", example = "509f84d9-ae0a-4685-b8fb-31c2dcf95ef9")
     private UUID sourceDb;

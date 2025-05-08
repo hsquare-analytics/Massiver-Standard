@@ -69,11 +69,13 @@ CREATE TABLE IF NOT EXISTS target_table_date (
     );
 
 CREATE TABLE IF NOT EXISTS target_table_date_massive (
-                                                         id        BIGINT       PRIMARY KEY,
-                                                         col1      VARCHAR(100),
+    id        BIGINT,
+    id2      BIGINT,
+    id3      BIGINT,
+    col1      VARCHAR(100),
     col2      VARCHAR(100),
     date_col  TIMESTAMP
-    );
+);
 
 -- ================================================
 -- 테이블 초기화 (한 번에)

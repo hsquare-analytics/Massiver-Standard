@@ -14,6 +14,9 @@ public record ColumnTransformRequest(
 
     @Schema(description = "타겟 컬럼명", example = "NEW_ID")
     @NotBlank
-    String targetColumn
+    String targetColumn,
+
+    @Schema(description = "타겟 컬럼 타입", example = "VARCHAR")
+    String targetColumnType
 ) {
 }

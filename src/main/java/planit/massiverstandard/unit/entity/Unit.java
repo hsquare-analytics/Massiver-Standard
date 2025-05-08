@@ -27,14 +27,17 @@ public class Unit extends BaseEntity implements Executable {
 
     private String name; // ETL 단위명
 
+    @Enumerated(EnumType.STRING)
+    private UnitType type; // ETL 단위 타입
+
     @ManyToOne
     @JoinColumn(name = "source_db_id")
     private DataSource sourceDb;
 
-    @Column(nullable = false)
+    @Column
     private String sourceSchema;
 
-    @Column(nullable = false)
+    @Column
     private String sourceTable;
 
     @ManyToOne
@@ -57,6 +60,7 @@ public class Unit extends BaseEntity implements Executable {
     @Builder
     public Unit(
         String name,
+        UnitType type,
         DataSource sourceDb,
         String sourceSchema,
         String sourceTable,
@@ -66,11 +70,12 @@ public class Unit extends BaseEntity implements Executable {
         List<ColumnTransform> columnTransforms,
         List<Filter> filters
     ) {
-        if (name == null || sourceDb == null || sourceTable == null || targetDb == null || targetTable == null) {
+        if (name == null || type == null || targetDb == null || targetSchema == null || targetTable == null) {
             throw new UnitFieldsRequireException("ETL Unit의 필수 필드를 입력해야 합니다.");
         }
         this.id = UUID.randomUUID();
         this.name = name;
+        this.type = type;
         this.sourceDb = sourceDb;
         this.sourceSchema = sourceSchema;
         this.sourceTable = sourceTable;
@@ -112,6 +117,7 @@ public class Unit extends BaseEntity implements Executable {
 
     public void update(Unit updateUnit) {
         this.name = updateUnit.getName();
+        this.type = updateUnit.getType();
         this.sourceDb = updateUnit.getSourceDb();
         this.sourceSchema = updateUnit.getSourceSchema();
         this.sourceTable = updateUnit.getSourceTable();

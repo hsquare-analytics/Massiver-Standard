@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import org.springframework.http.HttpMethod;
+import planit.massiverstandard.filter.entity.FilterHttpMethod;
 
 @Getter
 @Data
@@ -23,7 +25,7 @@ public class FilterDto {
     private String sql;
 
     @Schema(description = "API 필터 메소드", example = "GET", nullable = true)
-    private String method;
+    private FilterHttpMethod method;
 
     @Schema(description = "API 필터 URL", example = "http://localhost:8080", nullable = true)
     private String url;

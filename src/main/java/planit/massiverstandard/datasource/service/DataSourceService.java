@@ -93,7 +93,6 @@ public class DataSourceService implements CommandDataSource {
      */
     public void testConnection(DataSource dataSource) {
         try (
-
             HikariDataSource hikari = (HikariDataSource) DataSourceResolver.createDataSource(dataSource);
             Connection conn = hikari.getConnection()
         ) {

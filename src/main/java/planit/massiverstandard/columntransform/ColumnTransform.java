@@ -36,20 +36,25 @@ public class ColumnTransform extends BaseEntity {
     @Comment("타겟 컬럼명")
     private String targetColumn;
 
+    @Comment("타겟 컬럼의 타입")
+    private String targetColumnType;
+
     @Builder
-    public ColumnTransform(Unit unit, String sourceColumn, String targetColumn, boolean isOverWrite) {
+    public ColumnTransform(Unit unit, String sourceColumn, String targetColumn, boolean isOverWrite, String targetColumnType) {
         this.id = UUID.randomUUID();
         this.unit = unit;
         this.sourceColumn = sourceColumn;
         this.targetColumn = targetColumn;
         this.isOverWrite = isOverWrite;
+        this.targetColumnType = targetColumnType;
     }
 
-    public static ColumnTransform withOutUnitOf(String sourceColumn, String targetColumn, boolean isOverWrite) {
+    public static ColumnTransform withOutUnitOf(String sourceColumn, String targetColumn, boolean isOverWrite, String targetColumnType) {
         return ColumnTransform.builder()
             .sourceColumn(sourceColumn)
             .targetColumn(targetColumn)
             .isOverWrite(isOverWrite)
+            .targetColumnType(targetColumnType)
             .build();
     }
 

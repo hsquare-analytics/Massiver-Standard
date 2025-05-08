@@ -1,12 +1,11 @@
 package planit.massiverstandard.datasource.util.sql;
 
+import java.util.List;
+
 public class PostgreSelectSqlFactory implements SelectSqlFactory {
 
     @Override
     public String getPkList(String schema, String table) {
-        // PostgreSQL은 식별자를 소문자로 변환해서 비교하는 것이 안전합니다.
-        String sch = schema.toLowerCase();
-        String tbl = table.toLowerCase();
 
         return String.format("""
             SELECT kcu.column_name
@@ -19,8 +18,8 @@ public class PostgreSelectSqlFactory implements SelectSqlFactory {
               AND tc.table_name      = '%s'       -- 테이블 명
             ORDER BY kcu.ordinal_position;        -- PK 순서 보장
             """,
-            sch,
-            tbl
+            schema,
+            table
         );
     }
 
@@ -36,7 +35,7 @@ public class PostgreSelectSqlFactory implements SelectSqlFactory {
 
     @Override
     public String getTableList(String schema) {
-        String sch = schema.toLowerCase();
+
         return String.format("""
             SELECT table_name
             FROM information_schema.tables
@@ -44,14 +43,12 @@ public class PostgreSelectSqlFactory implements SelectSqlFactory {
               AND table_type = 'BASE TABLE'
             ORDER BY table_name;
             """,
-            sch
+            schema
         );
     }
 
     @Override
     public String getColumnList(String schema, String table) {
-        String sch = schema.toLowerCase();
-        String tbl = table.toLowerCase();
         return String.format("""
         SELECT
             col.column_name,
@@ -84,8 +81,43 @@ public class PostgreSelectSqlFactory implements SelectSqlFactory {
           AND col.table_name   = '%s'
         ORDER BY col.ordinal_position;
             """,
-            sch,
-            tbl
+            schema,
+            table
+        );
+    }
+
+    @Override
+    public String getProcedureList(String schema) {
+        return String.format("""
+        SELECT
+          p.proname           AS procedure_name,
+          pg_get_function_arguments(p.oid) AS procedure_arguments
+        FROM pg_catalog.pg_proc p
+        JOIN pg_catalog.pg_namespace n
+          ON n.oid = p.pronamespace
+        WHERE n.nspname = '%s'
+          AND p.prokind = 'p'       -- 'p' = PROCEDURE, 'f' = FUNCTION
+        ORDER BY p.proname;
+        """,
+            schema
+        );
+    }
+
+    @Override
+    public String getProcedureQuery(String schema, String procedureName, List<String> params) {
+        String paramList = String.join(", ", params);
+
+        return String.format("""
+            SELECT routine_name
+            FROM information_schema.routines
+            WHERE routine_schema = '%s'
+              AND routine_name = '%s'
+              AND routine_type = 'PROCEDURE'
+              AND parameter_list = '%s';
+            """,
+            schema,
+            procedureName,
+            paramList
         );
     }
 }
