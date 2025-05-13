@@ -42,7 +42,7 @@ public class DateRangeFilter extends Filter implements WhereFilter{
     }
 
     @Override
-    public Map<String, Object> process(Map<String, Object> item) {
+    public Object[] process(Object[] item) {
         return item;
     }
 

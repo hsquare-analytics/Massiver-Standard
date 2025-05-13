@@ -9,7 +9,7 @@ import planit.massiverstandard.datasource.repository.DataSourceRepository;
 import java.util.UUID;
 
 @Service
-@Transactional
+@Transactional("transactionManager")
 @RequiredArgsConstructor
 public class QueryDataSourceService implements FindDataSource {
 

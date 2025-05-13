@@ -10,6 +10,6 @@ public record ProcedureResponse(
     String procedureName,
 
     @Schema(description = "프로시저 인자", example = "employeeId, departmentId")
-    List<String> procedureArguments
+    List<ProcedureArgumentResponse> procedureArguments
 ) {
 }

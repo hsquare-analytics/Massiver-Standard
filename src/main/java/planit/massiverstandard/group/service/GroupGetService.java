@@ -19,13 +19,19 @@ public class GroupGetService implements FindGroup{
     private final Mapper mapper;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(value = "transactionManager", readOnly = true)
     public Group byId(UUID id) {
-        return groupRepository.findById(id).orElseThrow(() -> new GroupNotFoundException("Group을 찾을 수 없습니다"));
+        Group group = groupRepository.findById(id).orElseThrow(() -> new GroupNotFoundException("Group을 찾을 수 없습니다"));
+
+        // Lazy Loading을 위한 호출
+        group.getGroupUnits().size();
+        group.getSchedules().size();
+
+        return group;
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(value = "transactionManager" , readOnly = true)
     public GroupResultDto resultDtoById(UUID id) {
         Group group = byId(id);
         return mapper.groupTooResultDto(group);

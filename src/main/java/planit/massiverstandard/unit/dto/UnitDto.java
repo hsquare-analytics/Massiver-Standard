@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.Getter;
 import planit.massiverstandard.columntransform.dto.ColumnTransformDto;
 import planit.massiverstandard.filter.dto.FilterDto;
+import planit.massiverstandard.unit.dto.request.ProcedureParameterDto;
 import planit.massiverstandard.unit.entity.UnitType;
 
 import java.util.List;
@@ -25,5 +26,6 @@ public class UnitDto {
     private String targetTable;
     private List<ColumnTransformDto> columnTransforms;
     private List<FilterDto> filters;
+    private List<ProcedureParameterDto> procedureParameters;
 
 }

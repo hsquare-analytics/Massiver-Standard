@@ -50,4 +50,7 @@ public class UnitRequest {
     )
     private List<FilterRequestDto> filters;
 
+    @Schema(description = "프로시저 파라미터", example = "[{\"name\":\"employeeId\", \"type\":\"int\"}]")
+    private List<ProcedureParameterRequest> procedureParameters;
+
 }

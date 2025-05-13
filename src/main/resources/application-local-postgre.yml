@@ -8,6 +8,10 @@ spring:
     console:
       enabled: true  # H2 ?? ???
       path: /h2-console  # H2 ?? ?? ??
+  batch:
+    jdbc:
+      initialize-schema: always
+      isolation-level-for-create: read_committed
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:

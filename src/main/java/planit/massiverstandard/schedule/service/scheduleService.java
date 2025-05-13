@@ -31,7 +31,7 @@ public class scheduleService implements RegisterSchedule, ActiveSchedule {
     private final Mapper mapper;
 
     @Override
-    @Transactional
+    @Transactional("transactionManager")
     public List<ScheduleResultDto> updateSchedule(UUID groupId, ScheduleDto scheduleDto) {
         Group group = findGroup.byId(groupId);
 
@@ -47,7 +47,7 @@ public class scheduleService implements RegisterSchedule, ActiveSchedule {
     }
 
     @Override
-    @Transactional
+    @Transactional("transactionManager")
     public List<String> active(UUID groupID) {
         executeSchedule.active(groupID);
         Group group = findGroup.byId(groupID);
@@ -62,7 +62,7 @@ public class scheduleService implements RegisterSchedule, ActiveSchedule {
     }
 
     @Override
-    @Transactional
+    @Transactional("transactionManager")
     public void deActive(UUID groupId) {
         executeSchedule.deActive(groupId);
         Group group = findGroup.byId(groupId);

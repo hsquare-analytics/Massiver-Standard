@@ -35,7 +35,7 @@ public class H2SelectSqlFactory implements SelectSqlFactory {
                 SELECT TABLE_NAME
                 FROM INFORMATION_SCHEMA.TABLES
                 WHERE TABLE_SCHEMA = '%s'
-                  AND TABLE_TYPE = 'TABLE'
+                  AND TABLE_TYPE = 'BASE TABLE'
                 ORDER BY TABLE_NAME
                 """,
             schema.toUpperCase()
@@ -72,8 +72,8 @@ public class H2SelectSqlFactory implements SelectSqlFactory {
                   ON col.table_schema  = pk.table_schema
                  AND col.table_name    = pk.table_name
                  AND col.column_name   = pk.column_name
-                WHERE col.table_schema = 'schema_name'
-                  AND col.table_name   = 'table_name'
+                WHERE col.table_schema = '%s'
+                  AND col.table_name   = '%S'
                 ORDER BY col.ordinal_position;
                 """,
             schema.toUpperCase(),

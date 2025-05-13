@@ -6,6 +6,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
 import planit.massiverstandard.batch.BatchJobLauncher;
+import planit.massiverstandard.batch.vo.FlattenResult;
 
 import java.util.UUID;
 
@@ -18,7 +19,8 @@ public class ScheduleJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         String groupId = jobExecutionContext.getJobDetail().getJobDataMap().getString("groupId");
-        batchJobLauncher.runGroup(UUID.fromString(groupId));
+        FlattenResult flattenResult = batchJobLauncher.runGroup(UUID.fromString(groupId));
+        batchJobLauncher.runFlattenedGraph(flattenResult.unitGraph(), flattenResult.unitInDegree());
     }
 
 }

@@ -30,10 +30,29 @@ public class VerticaSelectSqlFactory implements SelectSqlFactory {
     @Override
     public String getColumnList(String schema, String table) {
         return String.format(
-            "SELECT * FROM v_catalog.columns " +
-                "WHERE table_schema = '%s' AND table_name = '%s' " +
-                "ORDER BY ordinal_position;",
-            schema, table); //  [oai_citation:3‡Vertica Documentation](https://docs.vertica.com/23.3.x/en/sql-reference/system-tables/v-catalog-schema/columns/)
+            "SELECT " +
+                "  c.column_name, " +
+                "  c.ordinal_position, " +
+                "  c.data_type, " +
+                "  c.character_maximum_length, " +
+                "  c.numeric_precision, " +
+                "  c.numeric_scale, " +
+                "  c.is_nullable, " +
+                "  c.column_default, " +
+                "  COALESCE(pk.is_primary_key, FALSE) AS is_primary_key " +
+                "FROM v_catalog.columns AS c " +
+                "LEFT JOIN ( " +
+                "  SELECT table_schema, table_name, column_name, TRUE AS is_primary_key " +
+                "  FROM v_catalog.primary_keys " +
+                ") AS pk " +
+                "  ON c.table_schema = pk.table_schema " +
+                " AND c.table_name   = pk.table_name " +
+                " AND c.column_name  = pk.column_name " +
+                "WHERE c.table_schema = '%s' " +
+                "  AND c.table_name   = '%s' " +
+                "ORDER BY c.ordinal_position;",
+            schema, table
+        );
     }
 
     @Override

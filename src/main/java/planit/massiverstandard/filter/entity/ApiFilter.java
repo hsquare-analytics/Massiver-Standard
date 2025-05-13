@@ -32,12 +32,12 @@ public class ApiFilter extends Filter {
 
     // todo: implement process method
     @Override
-    public Map<String, Object> process(Map<String, Object> item) {
+    public Object[] process(Object[] item) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(item, headers);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(headers);
 
         try {
             ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.valueOf(method.name()), entity, String.class);

@@ -11,6 +11,7 @@ import planit.massiverstandard.batch.usecase.ExecuteSchedule;
 import planit.massiverstandard.batch.usecase.CheckSchedule;
 import planit.massiverstandard.batch.usecase.ExecuteGroup;
 import planit.massiverstandard.batch.usecase.ExecuteUnit;
+import planit.massiverstandard.batch.vo.FlattenResult;
 import planit.massiverstandard.group.entity.Group;
 import planit.massiverstandard.group.service.FindGroup;
 
@@ -43,24 +44,23 @@ public class BatchService implements ExecuteUnit, ExecuteSchedule, ExecuteGroup,
         return CompletableFuture.completedFuture(null);
     }
 
-    @Async
     @Override
-    public CompletableFuture<Void> asyncGroup(UUID groupId) {
+    public void asyncGroup(UUID groupId) {
         try {
-            executeGroup(groupId);
+            CompletableFuture.runAsync(() -> executeGroup(groupId));
         } catch (Exception e) {
             throw new RuntimeException("Job 실행 실패", e);
         }
-        return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public void executeGroup(UUID groupId) {
-        batchJobLauncher.runGroup(groupId);
+        FlattenResult flattenResult = batchJobLauncher.runGroup(groupId);
+        batchJobLauncher.runFlattenedGraph(flattenResult.unitGraph(), flattenResult.unitInDegree());
     }
 
     @Override
-    @Transactional
+    @Transactional("transactionManager")
     public void active(UUID groupID) {
         Group group = findGroup.byId(groupID);
 

@@ -27,6 +27,13 @@ public interface UnitJpaRepository extends UnitRepository, JpaRepository<Unit, U
             """)
     Optional<Unit> findWithColumnTransformById(@Param("id") UUID id);
 
+    @Query("""
+            SELECT u
+            FROM Unit u
+            LEFT JOIN FETCH u.procedureParameters
+            WHERE u.id = :id
+            """)
+    Optional<Unit> findWithProcedureParameterById(UUID id);
 
     @Query("""
         SELECT u

@@ -8,10 +8,14 @@ spring:
     console:
       enabled: true  # H2 ?? ???
       path: /h2-console  # H2 ?? ?? ??
+  batch:
+    jdbc:
+      initialize-schema: always
+      isolation-level-for-create: read_committed
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create  # ?????? ?? ? ??? ?? ????
+      ddl-auto: update  # ?????? ?? ? ??? ?? ????
     show-sql: true  # SQL ?? ?? ???
     properties:
       hibernate.format_sql: true
@@ -28,14 +32,14 @@ server:
 init:
   datasource:
     enabled:
-      sql: true
-      domain: true
+      sql: false
+      domain: false
     source:
       database: ~/massiver-source
       host: localhost
       port: 9092
       username: sa
-      password: sa!
+      password: sa
     target:
       database: ~/massiver-target
       host: localhost

@@ -30,4 +30,12 @@ public interface FindUnit {
      */
     List<Unit> findByDataSource(UUID dataSourceId);
 
+    /**
+     * unitId로 procedureParameter를 포함한 unit을 찾는다.
+     *
+     * @param id unitId
+     * @return unit
+     */
+    Unit byIdWithProcedureParameter(UUID id);
+
 }

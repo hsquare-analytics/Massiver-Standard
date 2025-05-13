@@ -22,5 +22,5 @@ public interface ExecuteGroup {
      *
      * @param groupId 그룹 ID
      */
-    CompletableFuture<Void> asyncGroup(UUID groupId);
+    void asyncGroup(UUID groupId);
 }

@@ -36,7 +36,7 @@ public class GroupUnitService {
         return groupUnitRepository.existsByChildUnit_Id(unitId);
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public List<GroupUnit> createGroupUnitList(List<GroupUnitDto> groupUnitDtos) {
         // 1️⃣ Unit 정보를 캐싱하고 그래프 초기화
         Map<UUID, GroupUnitDto> dtoMap = groupUnitDtos.stream()

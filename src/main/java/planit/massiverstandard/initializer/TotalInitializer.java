@@ -49,7 +49,7 @@ public class TotalInitializer {
     }
 
     @PostConstruct
-    @Transactional
+    @Transactional("transactionManager")
     public void init() {
 
         // application startup 또는 @PostConstruct 에서

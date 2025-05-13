@@ -6,18 +6,17 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import planit.massiverstandard.Executable;
-import planit.massiverstandard.batch.job.BatchJob;
-import planit.massiverstandard.batch.usecase.ExecuteUnit;
+import planit.massiverstandard.batch.job.config.BatchJob;
+import planit.massiverstandard.batch.job.config.ProcedureBatchJob;
+import planit.massiverstandard.batch.vo.FlattenResult;
 import planit.massiverstandard.group.entity.Group;
 import planit.massiverstandard.group.entity.GroupUnit;
 import planit.massiverstandard.group.service.FindGroup;
-import planit.massiverstandard.group.service.GroupGetService;
-import planit.massiverstandard.group.service.GroupService;
 import planit.massiverstandard.unit.entity.Unit;
+import planit.massiverstandard.unit.entity.UnitType;
 import planit.massiverstandard.unit.service.UnitGetService;
 
 import java.util.*;
@@ -31,10 +30,9 @@ public class BatchJobLauncher {
 
     private final UnitGetService unitGetService;
     private final JobLauncher jobLauncher;
-    private final GroupService groupService;
 
     private final BatchJob batchJob;
-    private final GroupGetService groupGetService;
+    private final ProcedureBatchJob procedureBatchJob;
 
     private final FindGroup findGroup;
 
@@ -156,8 +154,8 @@ public class BatchJobLauncher {
         }
     }
 
-    @Transactional
-    public void runGroup(UUID groupId) {
+    @Transactional("transactionManager")
+    public FlattenResult runGroup(UUID groupId) {
         Group group = findGroup.byId(groupId);
 
         List<Executable> visitedGroup = new ArrayList<>();
@@ -177,7 +175,8 @@ public class BatchJobLauncher {
         log.info("===== 최종 Graph 구조 =====\n{}", prettyGraph(graph));
         log.info("===== 최종 InDegree Map =====\n{}", prettyInDegree(inDegree));
         // ─────────────────────────────────────────────────────────
-        runFlattenedGraph(graph, inDegree);
+
+        return new FlattenResult(graph, inDegree);
     }
 
     private String prettyGraph(Map<Executable, List<Executable>> graph) {
@@ -210,7 +209,7 @@ public class BatchJobLauncher {
         return exec.getId().toString();
     }
 
-    private void runFlattenedGraph(
+    public void runFlattenedGraph(
         Map<Executable, List<Executable>> graph,
         Map<Executable, Integer> inDegree
     ) {
@@ -297,10 +296,18 @@ public class BatchJobLauncher {
     }
 
     public void runBatchJob(UUID unitId) throws Exception {
-        Unit unit = unitGetService.byId(unitId);
+        Unit unit = unitGetService.byIdWithColumnTransform(unitId);
         JobParameters jobParameters = getJobParameters(unit);
 
-        Job job = batchJob.createJob("JOB_" + unit.getId());
+        Job job;
+        if (unit.getType() == UnitType.PROCEDURE) {
+            job = procedureBatchJob.createJob("PROCEDURE_JOB_" + unit.getId());
+        } else if (unit.getType() == UnitType.NORMAL) {
+            job = batchJob.createJob(unit);
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 유닛 타입입니다: " + unit.getType());
+        }
+
         jobLauncher.run(job, jobParameters);
     }
 

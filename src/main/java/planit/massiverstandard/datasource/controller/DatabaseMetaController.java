@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import planit.massiverstandard.datasource.dto.request.ProcedureQueryRequest;
 import planit.massiverstandard.datasource.dto.response.ColumnInfoResult;
+import planit.massiverstandard.datasource.dto.response.ProcedureArgumentResponse;
 import planit.massiverstandard.datasource.dto.response.ProcedureResponse;
-import planit.massiverstandard.datasource.dto.response.ProcedureResult;
 import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.datasource.service.DataSourceService;
 import planit.massiverstandard.datasource.service.ExecuteSqlScript;
@@ -14,6 +14,7 @@ import planit.massiverstandard.datasource.service.FindDataSource;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -65,24 +66,29 @@ public class DatabaseMetaController {
     public List<ProcedureResponse> getProcedures(@PathVariable(name = "dbId") UUID dbId,
                                       @PathVariable(name = "schema") String schema) {
         DataSource byId = dataSourceService.findById(dbId);
+
         return executeSqlScript.getProcedures(byId, schema).stream()
             .map(pc -> {
-                String args = pc.procedureArguments();
-                List<String> types;
-                if (args == null || args.isBlank()) {
-                    types = List.of();
-                } else {
-                    types = Arrays.stream(args.split(",(?![^()]*\\))"))
+                // 1) 인자 문자열(sentence)를 ,(쉼표)로 split. 괄호 안의 쉼표는 무시
+                String argString = pc.procedureArguments();
+                List<ProcedureArgumentResponse> argsList = Optional.ofNullable(argString)
+                    .filter(s -> !s.isBlank())
+                    .map(s -> Arrays.stream(s.split(",(?![^()]*\\))"))
                         .map(String::trim)
-                        .map(s -> {
-                            int idx = s.lastIndexOf(' ');
-                            return idx >= 0 ? s.substring(idx + 1) : s;
+                        .map(item -> {
+                            // 2) 공백 첫 번째를 경계로 name, typeRaw 분리
+                            String[] parts = item.split("\\s+", 2);
+                            String name = parts[0];
+                            String typeRaw = parts.length > 1 ? parts[1] : "";
+                            // 3) 타입 뒤 숫자(괄호 포함) 제거
+                            String type = typeRaw.replaceAll("\\(.+\\)", "").trim();
+                            return new ProcedureArgumentResponse(name, type);
                         })
-                        .map(s -> s.replaceAll("\\(.+\\)", ""))
-                        .filter(s -> !s.isEmpty())
-                        .toList();
-                }
-                return new ProcedureResponse(pc.procedureName(), types);
+                        .toList()
+                    )
+                    .orElseGet(List::of);
+
+                return new ProcedureResponse(pc.procedureName(), argsList);
             })
             .toList();
     }

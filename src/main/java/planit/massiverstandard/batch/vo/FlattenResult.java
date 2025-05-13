@@ -1,7 +1,6 @@
-package planit.massiverstandard.batch;
+package planit.massiverstandard.batch.vo;
 
 import planit.massiverstandard.Executable;
-import planit.massiverstandard.unit.entity.Unit;
 
 import java.util.List;
 import java.util.Map;

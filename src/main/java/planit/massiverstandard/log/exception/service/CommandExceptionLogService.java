@@ -11,7 +11,7 @@ import planit.massiverstandard.log.exception.repository.ExceptionLogRepository;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional("transactionManager")
 public class CommandExceptionLogService implements CommandExceptionLog{
 
     private final ExceptionLogRepository findExceptionLog;

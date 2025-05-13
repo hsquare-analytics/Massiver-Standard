@@ -56,6 +56,13 @@ public class Unit extends BaseEntity implements Executable {
     @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Filter> filters = new ArrayList<>();
 
+    @OneToMany(
+        mappedBy = "unit",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY)
+    private List<ProcedureParameter> procedureParameters = new ArrayList<>();
+
     // 📌 Aggregate Root이므로 생성자에서 유효성 검사 수행
     @Builder
     public Unit(
@@ -68,7 +75,8 @@ public class Unit extends BaseEntity implements Executable {
         String targetSchema,
         String targetTable,
         List<ColumnTransform> columnTransforms,
-        List<Filter> filters
+        List<Filter> filters,
+        List<ProcedureParameter> procedureParameters
     ) {
         if (name == null || type == null || targetDb == null || targetSchema == null || targetTable == null) {
             throw new UnitFieldsRequireException("ETL Unit의 필수 필드를 입력해야 합니다.");
@@ -87,6 +95,9 @@ public class Unit extends BaseEntity implements Executable {
         }
         if (filters != null) {
             addFilter(filters);
+        }
+        if (procedureParameters != null) {
+            addParameters(procedureParameters);
         }
     }
 
@@ -113,6 +124,15 @@ public class Unit extends BaseEntity implements Executable {
     public void addFilter(Filter filter) {
         filter.assignUnit(this);
         filters.add(filter);
+    }
+
+    public void addParameters(List<ProcedureParameter> procedureParameters) {
+        this.procedureParameters.clear();
+
+        for (ProcedureParameter parameter : procedureParameters) {
+            parameter.assignUnit(this);
+            this.procedureParameters.add(parameter);
+        }
     }
 
     public void update(Unit updateUnit) {

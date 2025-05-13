@@ -1,8 +1,12 @@
 package planit.massiverstandard.datasource.util;
 
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.exception.datasource.UnsupportedDataSourceTypeException;
 
+@Slf4j
 public class DataSourceResolver {
 
     public static javax.sql.DataSource createDataSource(DataSource dataSource) {
@@ -39,11 +43,22 @@ public class DataSourceResolver {
             default -> throw new UnsupportedDataSourceTypeException("지원하지 않는 데이터베이스 타입입니다: " + dataSource.getType());
         }
 
-        return org.springframework.boot.jdbc.DataSourceBuilder.create()
+        // HikariDataSource 로 빌드
+        HikariDataSource ds = DataSourceBuilder.create()
+            .type(HikariDataSource.class)      // HikariCP 명시
             .driverClassName(driverClassName)
             .url(url)
             .username(dataSource.getUsername())
             .password(dataSource.getPassword())
             .build();
+
+        // auto-commit 꺼서 커서 스트리밍 활성화
+        ds.setAutoCommit(false);
+
+        // (디버그용) 꼭 로그로 한 번 찍어 보세요
+        log.info(">> Created DataSource for {}://{} (autoCommit={})",
+            dataSource.getType(), url, ds.isAutoCommit());
+
+        return ds;
     }
 }

@@ -12,7 +12,10 @@ import planit.massiverstandard.filter.entity.Filter;
 import planit.massiverstandard.filter.serivce.FilterService;
 import planit.massiverstandard.group.service.GroupUnitService;
 import planit.massiverstandard.unit.dto.UnitDto;
+import planit.massiverstandard.unit.dto.UnitMapper;
+import planit.massiverstandard.unit.dto.request.ProcedureParameterDto;
 import planit.massiverstandard.unit.dto.request.UnitUpdateDto;
+import planit.massiverstandard.unit.entity.ProcedureParameter;
 import planit.massiverstandard.unit.entity.Unit;
 import planit.massiverstandard.unit.entity.UnitType;
 import planit.massiverstandard.unit.repository.UnitRepository;
@@ -29,11 +32,13 @@ public class UnitService implements CommandUnit {
     private final DataSourceService dataSourceService;
     private final UnitGetService unitGetService;
 
+    private final UnitMapper mapper;
+
     public List<Unit> getAllUnits() {
         return unitRepository.findAll();
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public Unit createUnit(UnitDto unitDto) {
 
         if (unitDto.getType() == UnitType.PROCEDURE) {
@@ -76,18 +81,22 @@ public class UnitService implements CommandUnit {
 
     private Unit saveProcedureUnit(UnitDto unitDto) {
         DataSource targetDataSource = dataSourceService.findById(unitDto.getTargetDb());
+        List<ProcedureParameter> parameters = unitDto.getProcedureParameters().stream()
+            .map(mapper::toProcedureParameter)
+            .toList();
         Unit entity = Unit.builder()
             .name(unitDto.getName())
             .type(unitDto.getType())
             .targetDb(targetDataSource)
             .targetSchema(unitDto.getTargetSchema())
             .targetTable(unitDto.getTargetTable())
+            .procedureParameters(parameters)
             .build();
 
         return unitRepository.save(entity);
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void deleteUnit(UUID id) {
         if (groupUnitService.istExistByUnit(id)) {
             throw new UnitInGroupException("Unit이 그룹에 속해있어 삭제할 수 없습니다");
@@ -97,7 +106,7 @@ public class UnitService implements CommandUnit {
     }
 
     @Override
-    @Transactional
+    @Transactional("transactionManager")
     public void update(UUID unitId, UnitUpdateDto updateDto) {
 
         Unit unit = unitGetService.byId(unitId);

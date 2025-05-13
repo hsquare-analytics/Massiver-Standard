@@ -24,7 +24,7 @@ public class GroupService implements CommandGroup {
     private final GroupGetService groupGetService;
 
     @Override
-    @Transactional
+    @Transactional("transactionManager")
     public GroupResultDto create(GroupDto groupDto) {
 
         List<GroupUnit> groupUnitList = groupUnitService.createGroupUnitList(groupDto.groupUnits());
@@ -42,7 +42,7 @@ public class GroupService implements CommandGroup {
     }
 
     @Override
-    @Transactional
+    @Transactional("transactionManager")
     public GroupResultDto update(UUID groupId, GroupDto groupDto) {
         Group group = groupGetService.byId(groupId);
         List<GroupUnit> groupUnitList = groupUnitService.createGroupUnitList(groupDto.groupUnits());

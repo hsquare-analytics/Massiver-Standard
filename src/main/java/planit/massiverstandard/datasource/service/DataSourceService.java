@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@Transactional
+@Transactional("transactionManager")
 @RequiredArgsConstructor
 public class DataSourceService implements CommandDataSource {
 

@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import planit.massiverstandard.BaseEntity;
 import planit.massiverstandard.Executable;
 import planit.massiverstandard.exception.group.GroupNameRequireException;
@@ -34,11 +36,11 @@ public class Group extends BaseEntity implements Executable {
     private Boolean isActive;
 
     @BatchSize(size = 100)
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<GroupUnit> groupUnits = new ArrayList<>();
 
     @BatchSize(size = 100)
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Schedule> schedules = new ArrayList<>();
 
     @Builder
