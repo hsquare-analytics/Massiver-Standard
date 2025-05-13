@@ -20,4 +20,10 @@ public class QueryDataSourceService implements FindDataSource {
         return dataSourceRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Data source not found"));
     }
+
+    @Override
+    public DataSource byName(String name) {
+        return dataSourceRepository.findByName(name)
+                .orElseThrow(() -> new RuntimeException("Data source not found"));
+    }
 }

@@ -7,7 +7,6 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
@@ -15,7 +14,6 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,76 +22,67 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
-import planit.massiverstandard.batch.job.InsertTempTableWriter;
+import planit.massiverstandard.batch.job.listener.StepFailureListener;
 import planit.massiverstandard.batch.job.listener.TempTableInitializer;
 import planit.massiverstandard.columntransform.ColumnTransform;
 import planit.massiverstandard.datasource.service.FindRealDataSource;
-import planit.massiverstandard.filter.entity.DateRangeFilter;
-import planit.massiverstandard.filter.entity.Filter;
-import planit.massiverstandard.filter.entity.SqlFilter;
-import planit.massiverstandard.filter.entity.WhereFilter;
 import planit.massiverstandard.unit.entity.Unit;
 import planit.massiverstandard.unit.service.FindUnit;
-import planit.massiverstandard.unit.service.UnitGetService;
 
 import javax.sql.DataSource;
-import java.sql.ResultSetMetaData;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class BatchJob {
+public class OverWriteBatchJob {
 
     private final FindUnit findUnit;
     private final JobRepository jobRepository;
-    private final Step etlStep;
+    private final Step overWriteEtlStep;
     private final Step mergeStep;
     private final FindRealDataSource findRealDataSource;
 
     private final ItemReader<Object[]> reader;
     private final ItemProcessor<Object[], Object[]> processor;
-    private final ItemWriter<Object[]> writer;
+    private final ItemWriter<Object[]> overWriteWriter;
 
     public Job createJob(Unit unit) {
-        String jobName = "JOB_" + unit.getId();
-
-        SimpleJobBuilder builder = new JobBuilder(jobName, jobRepository)
-            .start(etlStep)
-            .incrementer(new RunIdIncrementer());
-
-        // 덮어쓰기 적재일 경우 mergeStep 추가
-        boolean isOverWrite = unit.getColumnTransforms().stream().anyMatch(ColumnTransform::isOverWrite);
-        if (isOverWrite) {
-            builder.next(mergeStep);
-        }
-
-        return builder.build();
+        String jobName = "OVERWRITE_LOAD_" + unit.getName();
+        return new JobBuilder(jobName, jobRepository)
+            .start(overWriteEtlStep)
+            .next(mergeStep)
+            .incrementer(new RunIdIncrementer())
+            .build();
     }
 
     @Bean
     @JobScope
-    public Step etlStep(
+    public Step overWriteEtlStep(
         @Value("#{jobParameters['unitId']}") String unitId,
         JobRepository jobRepository,
-        PlatformTransactionManager etlTransactionManager
+        PlatformTransactionManager etlTransactionManager,
+        StepFailureListener stepFailureListener
     ) {
 
         SimpleStepBuilder<Object[], Object[]> chunk = new StepBuilder("STEP_" + unitId, jobRepository)
             .<Object[], Object[]>chunk(1000, etlTransactionManager)
             .reader(reader)  // ✅ @Bean으로 주입된 reader 사용
             .processor(processor)  // ✅ @Bean으로 주입된 processor 사용
-            .writer(writer);  // ✅ @Bean으로 주입된 writer 사용
+            .writer(overWriteWriter)  // ✅ @Bean으로 주입된 writer 사용
+            .listener(stepFailureListener);
 
         Unit unit = findUnit.byIdWithColumnTransform(UUID.fromString(unitId));
 
         // 덮어쓰기 적재일 경우 mergeStep 추가
         boolean isOverWrite = unit.getColumnTransforms().stream().anyMatch(ColumnTransform::isOverWrite);
         if (isOverWrite) {
-            javax.sql.DataSource dataSource = findRealDataSource.getOrCreateDataSource(unit.getSourceDb());
+            DataSource dataSource = findRealDataSource.getOrCreateDataSource(unit.getSourceDb());
             NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
             TempTableInitializer initializer = new TempTableInitializer(jdbcTemplate, unit);
             chunk.listener(initializer);
@@ -102,98 +91,32 @@ public class BatchJob {
         return chunk.build();
     }
 
-    @Bean
-    @StepScope
-    public PlatformTransactionManager etlTransactionManager(
-        @Value("#{jobParameters['unitId']}") String unitId
-    ) {
-        Unit unit = findUnit.byId(UUID.fromString(unitId));
-        DataSource etlDs = findRealDataSource.getOrCreateDataSource(unit.getTargetDb());
-        return new DataSourceTransactionManager(etlDs);
-    }
-
-    // 1) 컬럼 순서만 한 번 계산
-    @Bean
-    @StepScope
-    public List<String> targetColumns(@Value("#{jobParameters['unitId']}") String unitId) {
-        Unit unit = findUnit.byIdWithColumnTransform(UUID.fromString(unitId));
-        // 순서 보장된 LinkedHashMap → key 리스트로
-        LinkedHashMap<String, String> mapping = new LinkedHashMap<>();
-        unit.getColumnTransforms()
-            .forEach(c -> mapping.put(c.getTargetColumn(), c.getSourceColumn()));
-        return new ArrayList<>(mapping.keySet());
-    }
-
-    @Bean
-    @StepScope
-    public JdbcCursorItemReader<Object[]> reader(@Value("#{jobParameters['unitId']}") String unitId, UnitGetService unitGetService) {
-
-        Unit unit = unitGetService.byId(UUID.fromString(unitId));
-        javax.sql.DataSource dataSource = findRealDataSource.getOrCreateDataSource(unit.getSourceDb());
-
-        String sqlString = buildSelectSql(unit);
-
-        JdbcCursorItemReader<Object[]> reader = new JdbcCursorItemReader<>();
-        reader.setDataSource(dataSource);
-        reader.setSql(buildSelectSql(unit));
-        reader.setFetchSize(1000);
-        reader.setRowMapper((rs, rowNum) -> {
-            ResultSetMetaData md = rs.getMetaData();
-            int cnt = md.getColumnCount();
-            Object[] arr = new Object[cnt];
-            for (int i = 1; i <= cnt; i++) {
-                arr[i - 1] = rs.getObject(i);
-            }
-            return arr;
-        });
-
-        log.info("[Reader-{}] SQL = {}", unitId, sqlString);
-        return reader;
-    }
-
-    private String buildSelectSql(Unit unit) {
-        StringBuilder sql = new StringBuilder("""
-            SELECT *
-            FROM """ + " " + unit.getSourceSchema() + "." + unit.getSourceTable() + " " + """
-            WHERE 1=1
-            """);
-
-        unit.getFilters().stream()
-            .filter(filter -> filter instanceof DateRangeFilter | filter instanceof SqlFilter)
-            .forEach(filter -> {
-                WhereFilter whereFilter = (WhereFilter) filter;
-                whereFilter.addCondition(sql);
-            });
-
-        return sql.toString();
-    }
+//    @Bean
+//    @StepScope
+//    public ItemProcessor<Object[], Object[]> processor(
+//        @Value("#{jobParameters['unitId']}") String unitId
+//    ) {
+//        Unit unit = findUnit.byId(UUID.fromString(unitId));
+//        List<Filter> filters = unit.getFilters();
+//
+//        return item -> {
+//
+//            for (Filter filter : filters) {
+//                item = filter.process(item);
+//
+//                if (item == null) {
+//                    return null;
+//                }
+//            }
+//
+//            return item;
+//        };
+//
+//    }
 
     @Bean
     @StepScope
-    public ItemProcessor<Object[], Object[]> processor(
-        @Value("#{jobParameters['unitId']}") String unitId
-    ) {
-        Unit unit = findUnit.byId(UUID.fromString(unitId));
-        List<Filter> filters = unit.getFilters();
-
-        return item -> {
-
-            for (Filter filter : filters) {
-                item = filter.process(item);
-
-                if (item == null) {
-                    return null;
-                }
-            }
-
-            return item;
-        };
-
-    }
-
-    @Bean
-    @StepScope
-    public ItemWriter<Object[]> writer(@Value("#{jobParameters['unitId']}") String unitId,
+    public ItemWriter<Object[]> overWriteWriter(@Value("#{jobParameters['unitId']}") String unitId,
                                        List<String> targetColumns
     ) {
 
@@ -201,7 +124,7 @@ public class BatchJob {
         boolean isOverWrite = unit.getColumnTransforms().stream()
             .anyMatch(ColumnTransform::isOverWrite);
 
-        javax.sql.DataSource targetDataSource = findRealDataSource.getOrCreateDataSource(unit.getTargetDb());
+        DataSource targetDataSource = findRealDataSource.getOrCreateDataSource(unit.getTargetDb());
 
 //        if (isOverWrite) {
 //            return new InsertTempTableWriter(

@@ -5,7 +5,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
-import planit.massiverstandard.batch.BatchJobLauncher;
+import planit.massiverstandard.batch.service.BatchJobLauncher;
 import planit.massiverstandard.batch.vo.FlattenResult;
 
 import java.util.UUID;

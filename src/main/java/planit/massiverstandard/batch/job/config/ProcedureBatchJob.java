@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
+import planit.massiverstandard.batch.job.listener.StepFailureListener;
 import planit.massiverstandard.datasource.service.FindRealDataSource;
 import planit.massiverstandard.unit.entity.DateRangeType;
 import planit.massiverstandard.unit.entity.ProcedureParameter;
@@ -48,7 +48,8 @@ public class ProcedureBatchJob {
     @Bean(name = "procedureStep")
     @JobScope
     public Step procedureStep(JobRepository jobRepository,
-                              @Value("#{jobParameters['unitId']}") String unitId
+                              @Value("#{jobParameters['unitId']}") String unitId,
+                              StepFailureListener stepFailureListener
     ) {
         Unit unit = findUnit.byIdWithProcedureParameter(UUID.fromString(unitId));
         String targetSchema = unit.getTargetSchema();
@@ -69,6 +70,7 @@ public class ProcedureBatchJob {
 
                 return RepeatStatus.FINISHED;
             }, dataSourceTransactionManager)
+            .listener(stepFailureListener)
             .build();
     }
 

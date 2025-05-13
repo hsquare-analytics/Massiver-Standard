@@ -144,6 +144,7 @@ public class Unit extends BaseEntity implements Executable {
     public void update(Unit updateUnit) {
         this.name = updateUnit.getName();
         this.type = updateUnit.getType();
+        this.loadStrategy = updateUnit.getLoadStrategy();
         this.sourceDb = updateUnit.getSourceDb();
         this.sourceSchema = updateUnit.getSourceSchema();
         this.sourceTable = updateUnit.getSourceTable();

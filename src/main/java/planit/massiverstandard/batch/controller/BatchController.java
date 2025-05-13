@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import planit.massiverstandard.batch.BatchJobLauncher;
+import planit.massiverstandard.batch.service.BatchJobLauncher;
 import planit.massiverstandard.batch.usecase.ExecuteGroup;
 import planit.massiverstandard.batch.usecase.ExecuteUnit;
 
@@ -20,7 +20,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BatchController {
 
-    private final BatchJobLauncher batchJobLauncher;
     private final ExecuteGroup executeGroup;
     private final ExecuteUnit executeUnit;
 

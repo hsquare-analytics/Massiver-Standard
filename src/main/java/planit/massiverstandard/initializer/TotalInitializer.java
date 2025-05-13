@@ -14,7 +14,6 @@ import planit.massiverstandard.exception.common.UnsupportedProfileException;
 import planit.massiverstandard.initializer.dto.DataSourceProperties;
 import planit.massiverstandard.unit.entity.Unit;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -28,6 +27,7 @@ public class TotalInitializer {
     private final UnitInitializer unitInitializer;
     private final GroupInitializer groupInitializer;
     private final DataSourceProperties props;
+    private final FindDataSource findDataSource;
 
     //프로파일 가져오기
     private final Environment environment;
@@ -55,27 +55,39 @@ public class TotalInitializer {
         // application startup 또는 @PostConstruct 에서
         String[] activeProfiles = environment.getActiveProfiles();
 
+        if (props.getEnabled().isDomain()) {
 
-        DataSource sourceDb = databaseInitializer.init(
-            "massiver-source",
-            resolveDataSourceType(activeProfiles[0]),
-            props.getSource().getDatabase(),
-            props.getSource().getHost(),
-            props.getSource().getPort(),
-            props.getSource().getUsername(),
-            props.getSource().getPassword()
-        );
-        DataSource targetDb = databaseInitializer.init(
-            "massiver-target",
-            resolveDataSourceType(activeProfiles[0]),
-            props.getTarget().getDatabase(),
-            props.getTarget().getHost(),
-            props.getTarget().getPort(),
-            props.getTarget().getUsername(),
-            props.getTarget().getPassword()
-        );
+            DataSource sourceDb = databaseInitializer.init(
+                "massiver-source",
+                resolveDataSourceType(activeProfiles[0]),
+                props.getSource().getDatabase(),
+                props.getSource().getHost(),
+                props.getSource().getPort(),
+                props.getSource().getUsername(),
+                props.getSource().getPassword()
+            );
+            DataSource targetDb = databaseInitializer.init(
+                "massiver-target",
+                resolveDataSourceType(activeProfiles[0]),
+                props.getTarget().getDatabase(),
+                props.getTarget().getHost(),
+                props.getTarget().getPort(),
+                props.getTarget().getUsername(),
+                props.getTarget().getPassword()
+            );
+
+            List<Unit> units = unitInitializer.init(sourceDb, targetDb);
+            log.info("[❗️데이터 초기화] UNIT 초기화 완료");
+
+            groupInitializer.init(units);
+            log.info("[❗️데이터 초기화] GROUP 초기화 완료");
+
+        }
 
         if (props.getEnabled().isSql()) {
+
+            DataSource sourceDb = findDataSource.byName("massiver-source");
+            DataSource targetDb = findDataSource.byName("massiver-target");
 
             String sourceSql = resolveSqlScript(activeProfiles[0], "source");
             String targetSql = resolveSqlScript(activeProfiles[0], "target");
@@ -83,16 +95,6 @@ public class TotalInitializer {
             sqlDataInitializer.init(sourceDb, sourceSql);
             sqlDataInitializer.init(targetDb, targetSql);
             log.info("[❗️데이터 초기화] SQL 초기화 완료");
-
-        }
-
-        if (props.getEnabled().isDomain()) {
-
-            List<Unit> units = unitInitializer.init(sourceDb, targetDb);
-            log.info("[❗️데이터 초기화] UNIT 초기화 완료");
-
-            groupInitializer.init(units);
-            log.info("[❗️데이터 초기화] GROUP 초기화 완료");
 
         }
 

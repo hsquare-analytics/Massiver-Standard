@@ -1,4 +1,4 @@
-package planit.massiverstandard.batch;
+package planit.massiverstandard.batch.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,7 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import planit.massiverstandard.Executable;
-import planit.massiverstandard.batch.job.config.BatchJob;
+import planit.massiverstandard.batch.job.config.AppendBatchJob;
 import planit.massiverstandard.batch.job.config.ProcedureBatchJob;
 import planit.massiverstandard.batch.vo.FlattenResult;
 import planit.massiverstandard.group.entity.Group;
@@ -31,7 +31,7 @@ public class BatchJobLauncher {
     private final UnitGetService unitGetService;
     private final JobLauncher jobLauncher;
 
-    private final BatchJob batchJob;
+    private final BatchJobResolver batchJobResolver;
     private final ProcedureBatchJob procedureBatchJob;
 
     private final FindGroup findGroup;
@@ -303,7 +303,7 @@ public class BatchJobLauncher {
         if (unit.getType() == UnitType.PROCEDURE) {
             job = procedureBatchJob.createJob("PROCEDURE_JOB_" + unit.getId());
         } else if (unit.getType() == UnitType.NORMAL) {
-            job = batchJob.createJob(unit);
+            job = batchJobResolver.resolveJob(unit);
         } else {
             throw new IllegalArgumentException("지원하지 않는 유닛 타입입니다: " + unit.getType());
         }

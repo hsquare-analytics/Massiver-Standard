@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import planit.massiverstandard.columntransform.dto.ColumnTransformRequest;
 import planit.massiverstandard.filter.dto.FilterRequestDto;
+import planit.massiverstandard.unit.entity.LoadStrategy;
 import planit.massiverstandard.unit.entity.UnitType;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public record UnitUpdateRequestDto(
     UnitType type,
 
     @Schema(description = "적재 전략", example = "FULL")
-    String loadStrategy,
+    LoadStrategy loadStrategy,
 
     @Schema(description = "소스 DB ID", example = "509f84d9-ae0a-4685-b8fb-31c2dcf95ef9")
     UUID sourceDb,

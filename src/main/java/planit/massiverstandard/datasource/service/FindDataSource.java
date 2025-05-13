@@ -12,4 +12,6 @@ public interface FindDataSource {
      * @return 데이터 소스
      */
     DataSource byId(UUID id);
+
+    DataSource byName(String name);
 }
