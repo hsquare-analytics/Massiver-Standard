@@ -6,6 +6,7 @@ import lombok.Getter;
 import planit.massiverstandard.columntransform.dto.ColumnTransformDto;
 import planit.massiverstandard.filter.dto.FilterDto;
 import planit.massiverstandard.unit.dto.request.ProcedureParameterDto;
+import planit.massiverstandard.unit.entity.LoadStrategy;
 import planit.massiverstandard.unit.entity.UnitType;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class UnitDto {
 
     private String name;
     private UnitType type;
+    private LoadStrategy loadStrategy;
     private UUID sourceDb;
     private String sourceSchema;
     private String sourceTable;

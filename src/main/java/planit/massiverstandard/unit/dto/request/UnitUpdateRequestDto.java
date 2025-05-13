@@ -16,6 +16,9 @@ public record UnitUpdateRequestDto(
     @Schema(description = "유닛 타입", example = "NORMAL")
     UnitType type,
 
+    @Schema(description = "적재 전략", example = "FULL")
+    String loadStrategy,
+
     @Schema(description = "소스 DB ID", example = "509f84d9-ae0a-4685-b8fb-31c2dcf95ef9")
     UUID sourceDb,
 

@@ -1,7 +1,6 @@
 package planit.massiverstandard.unit.service;
 
 import planit.massiverstandard.unit.dto.request.UnitUpdateDto;
-import planit.massiverstandard.unit.dto.request.UnitUpdateRequestDto;
 
 import java.util.UUID;
 

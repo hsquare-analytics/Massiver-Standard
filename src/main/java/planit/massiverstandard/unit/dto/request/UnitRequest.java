@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import planit.massiverstandard.columntransform.dto.ColumnTransformRequest;
 import planit.massiverstandard.filter.dto.FilterRequestDto;
+import planit.massiverstandard.unit.entity.LoadStrategy;
 import planit.massiverstandard.unit.entity.UnitType;
 
 import java.util.List;
@@ -20,6 +21,9 @@ public class UnitRequest {
 
     @Schema(description = "유닛 타입", example = "NORMAL")
     private UnitType type;
+
+    @Schema(description = "적재 전력", example = "APPEND")
+    private LoadStrategy loadStrategy;
 
     @Schema(description = "소스 DB ID", example = "509f84d9-ae0a-4685-b8fb-31c2dcf95ef9")
     private UUID sourceDb;

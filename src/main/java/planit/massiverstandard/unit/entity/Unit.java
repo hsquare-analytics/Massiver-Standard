@@ -30,6 +30,10 @@ public class Unit extends BaseEntity implements Executable {
     @Enumerated(EnumType.STRING)
     private UnitType type; // ETL 단위 타입
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "load_strategy")
+    private LoadStrategy loadStrategy;
+
     @ManyToOne
     @JoinColumn(name = "source_db_id")
     private DataSource sourceDb;
@@ -68,6 +72,7 @@ public class Unit extends BaseEntity implements Executable {
     public Unit(
         String name,
         UnitType type,
+        LoadStrategy loadStrategy,
         DataSource sourceDb,
         String sourceSchema,
         String sourceTable,
@@ -84,6 +89,7 @@ public class Unit extends BaseEntity implements Executable {
         this.id = UUID.randomUUID();
         this.name = name;
         this.type = type;
+        this.loadStrategy = loadStrategy;
         this.sourceDb = sourceDb;
         this.sourceSchema = sourceSchema;
         this.sourceTable = sourceTable;

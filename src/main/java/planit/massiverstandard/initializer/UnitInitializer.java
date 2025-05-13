@@ -6,6 +6,7 @@ import planit.massiverstandard.columntransform.ColumnTransform;
 import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.filter.entity.DateRangeFilter;
 import planit.massiverstandard.filter.entity.Filter;
+import planit.massiverstandard.unit.entity.LoadStrategy;
 import planit.massiverstandard.unit.entity.Unit;
 import planit.massiverstandard.unit.entity.UnitType;
 import planit.massiverstandard.unit.repository.UnitRepository;
@@ -96,6 +97,7 @@ public class UnitInitializer {
         Unit build = Unit.builder()
             .name(name)
             .type(UnitType.NORMAL)
+            .loadStrategy(LoadStrategy.FULL)
             .sourceDb(sourceDb)
             .sourceSchema(sourceSchema)
             .sourceTable(sourceTable)
