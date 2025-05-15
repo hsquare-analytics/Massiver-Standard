@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import planit.massiverstandard.data.DataSourceJpaRepository;
 import planit.massiverstandard.datasource.dto.request.DataSourceCreateDto;
 import planit.massiverstandard.datasource.dto.request.DataSourceTestConnectionDto;
 import planit.massiverstandard.datasource.entity.DataSource;
@@ -68,6 +67,7 @@ public class DataSourceService implements CommandDataSource {
         DataSource dataSourceEntity = DataSource.builder()
             .type(testDto.type())
             .database(testDto.database())
+            .properties(testDto.properties())
             .host(testDto.host())
             .port(testDto.port())
             .username(testDto.username())

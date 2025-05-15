@@ -8,6 +8,8 @@ public record DataSourceTestConnectionRequest(
     DataSourceType type,
     @Schema(description = "데이터베이스 이름", example = "massiver-source")
     String database,
+    @Schema(description = "데이터베이스 설정", example = "DATABASE_TO_UPPER=false")
+    String properties,
     @Schema(description = "호스트", example = "localhost")
     String host,
     @Schema(description = "포트", example = "9092")

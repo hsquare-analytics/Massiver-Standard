@@ -1,7 +1,7 @@
 package planit.massiverstandard.unit.repository;
 
 import org.springframework.data.repository.query.Param;
-import planit.massiverstandard.columntransform.ColumnTransform;
+import planit.massiverstandard.columntransform.entity.ColumnTransform;
 import planit.massiverstandard.filter.entity.Filter;
 import planit.massiverstandard.unit.entity.ProcedureParameter;
 import planit.massiverstandard.unit.entity.Unit;

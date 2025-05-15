@@ -7,7 +7,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
-import planit.massiverstandard.columntransform.ColumnTransform;
+import planit.massiverstandard.columntransform.entity.ColumnTransform;
 import planit.massiverstandard.unit.entity.Unit;
 
 import java.util.List;
@@ -336,8 +336,8 @@ public class DeleteInsertItemWriter implements ItemWriter<Map<String, Object>>, 
             return param;
         }).toList();
 
-        String columns = String.join(", ", items.get(0).keySet()); // 모든 컬럼 이름을 가져옴
-        String values = items.get(0).keySet().stream()
+        String columns = String.join(", ", items.getFirst().keySet()); // 모든 컬럼 이름을 가져옴
+        String values = items.getFirst().keySet().stream()
             .map(col -> ":" + col)
             .collect(Collectors.joining(", "));
 

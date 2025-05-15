@@ -18,6 +18,9 @@ public class DataSourceRequest {
     @Schema(description = "데이터베이스 이름", example = "massiver-source")
     private String database;
 
+    @Schema(description = "데이터베이스 설정", example = "DATABASE_TO_UPPER=false")
+    private String properties;
+
     @Schema(description = "호스트", example = "localhost")
     private String host;
 

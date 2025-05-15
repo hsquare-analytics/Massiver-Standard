@@ -5,7 +5,7 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import planit.massiverstandard.columntransform.ColumnTransform;
+import planit.massiverstandard.columntransform.entity.ColumnTransform;
 import planit.massiverstandard.unit.entity.Unit;
 
 import java.util.stream.Collectors;

@@ -27,6 +27,7 @@ public class DatabaseInitializer {
         String name,
         DataSourceType type,
         String database,
+        String properties,
         String host,
         String port,
         String username,
@@ -36,6 +37,7 @@ public class DatabaseInitializer {
             .name(name)
             .type(type)
             .database(database)    // ← 여기(database) 로 바뀌었습니다
+            .properties(properties)
             .host(host)
             .port(port)
             .username(username)

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
-import planit.massiverstandard.columntransform.ColumnTransform;
+import planit.massiverstandard.columntransform.entity.ColumnTransform;
 import planit.massiverstandard.unit.entity.Unit;
 
 import java.util.List;

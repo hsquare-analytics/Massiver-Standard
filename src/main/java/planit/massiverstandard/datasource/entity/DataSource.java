@@ -35,6 +35,9 @@ public class DataSource extends BaseEntity {
     @Comment("데이터베이스")
     private String database;
 
+    @Comment("설정")
+    private String properties;
+
     @Comment("사용자명")
     private String username;
 
@@ -44,12 +47,13 @@ public class DataSource extends BaseEntity {
     private String password;
 
     @Builder
-    public DataSource(String name, DataSourceType type, String host, String port, String database, String username, String password) {
+    public DataSource(String name, DataSourceType type, String host, String port, String database, String properties, String username, String password) {
 
         this.id = UUID.randomUUID();
         this.name = name;
         this.type = type;
         this.database = database;
+        this.properties = properties;
         this.host = host;
         this.port = port;
         this.username = username;
@@ -60,6 +64,7 @@ public class DataSource extends BaseEntity {
     public void update(DataSource entity) {
         this.name = entity.getName();
         this.type = entity.getType();
+        this.properties = entity.getProperties();
         this.host = entity.getHost();
         this.port = entity.getPort();
         this.database = entity.getDatabase();

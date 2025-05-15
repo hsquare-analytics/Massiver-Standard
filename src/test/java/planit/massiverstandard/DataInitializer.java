@@ -1,6 +1,6 @@
 package planit.massiverstandard;
 
-import planit.massiverstandard.columntransform.ColumnTransform;
+import planit.massiverstandard.columntransform.entity.ColumnTransform;
 import planit.massiverstandard.columntransform.dto.ColumnTransformDto;
 import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.filter.dto.FilterDto;

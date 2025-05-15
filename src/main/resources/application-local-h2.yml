@@ -36,12 +36,14 @@ init:
       domain: false
     source:
       database: ~/massiver-source
+      properties: DATABASE_TO_UPPER=false
       host: localhost
       port: 9092
       username: sa
       password: sa
     target:
       database: ~/massiver-target
+      properties: DATABASE_TO_UPPER=false
       host: localhost
       port: 9092
       username: sa

@@ -7,6 +7,7 @@ import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import planit.massiverstandard.columntransform.entity.ColumnTransform;
 import planit.massiverstandard.datasource.service.FindRealDataSource;
 import planit.massiverstandard.filter.entity.DateRangeFilter;
 import planit.massiverstandard.filter.entity.SqlFilter;
@@ -16,6 +17,7 @@ import planit.massiverstandard.unit.service.UnitGetService;
 
 import javax.sql.DataSource;
 import java.sql.ResultSetMetaData;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -29,17 +31,18 @@ public class BatchReaderConfig {
     @StepScope
     public JdbcCursorItemReader<Object[]> reader(
         @Value("#{jobParameters['unitId']}") String unitId,
-        UnitGetService unitGetService
+        UnitGetService unitGetService,
+        List<ColumnTransform> columnTransforms
     ) {
 
         Unit unit = unitGetService.byId(UUID.fromString(unitId));
         DataSource dataSource = findRealDataSource.getOrCreateDataSource(unit.getSourceDb());
 
-        String sqlString = buildSelectSql(unit);
+        String sqlString = buildSelectSql(unit, columnTransforms);
 
         JdbcCursorItemReader<Object[]> reader = new JdbcCursorItemReader<>();
         reader.setDataSource(dataSource);
-        reader.setSql(buildSelectSql(unit));
+        reader.setSql(sqlString);
         reader.setFetchSize(1000);
         reader.setRowMapper((rs, rowNum) -> {
             ResultSetMetaData md = rs.getMetaData();
@@ -56,12 +59,16 @@ public class BatchReaderConfig {
     }
 
 
-    private String buildSelectSql(Unit unit) {
-        StringBuilder sql = new StringBuilder("""
-            SELECT *
-            FROM """ + " " + unit.getSourceSchema() + "." + unit.getSourceTable() + " " + """
-            WHERE 1=1
-            """);
+    private String buildSelectSql(Unit unit, List<ColumnTransform> columnTransforms) {
+
+        List<String> columnNames = columnTransforms.stream()
+            .map(ColumnTransform::getSourceColumn)
+            .toList();
+
+        StringBuilder sql = new StringBuilder("SELECT " + String.join(", ", columnNames) +
+            " FROM " + unit.getSourceSchema() + "." + unit.getSourceTable() +
+            " WHERE 1=1");
+
 
         unit.getFilters().stream()
             .filter(filter -> filter instanceof DateRangeFilter | filter instanceof SqlFilter)

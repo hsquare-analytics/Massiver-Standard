@@ -121,37 +121,4 @@ public class FullBatchJob {
 
     }
 
-//    @Bean
-//    @StepScope
-//    public ItemWriter<Object[]> fullLoadWriter(@Value("#{jobParameters['unitId']}") String unitId,
-//                                               List<String> targetColumns
-//    ) {
-//
-//        Unit unit = findUnit.byIdWithColumnTransform(UUID.fromString(unitId));
-//
-//        Map<String, String> columnMapping = new HashMap<>();
-//        // map으로 변환
-//        unit.getColumnTransforms().forEach(
-//            c -> columnMapping.put(c.getTargetColumn(), c.getSourceColumn())
-//        );
-//
-//        DataSource ds = findRealDataSource.getOrCreateDataSource(unit.getTargetDb());
-//        // INSERT SQL 생성
-//        String cols = String.join(", ", targetColumns);
-//        String vals = targetColumns.stream().map(c -> "?")
-//            .collect(Collectors.joining(", "));
-//        String sql = String.format("INSERT INTO %s.%s (%s) VALUES (%s)",
-//            unit.getTargetSchema(), unit.getTargetTable(), cols, vals);
-//        return new JdbcBatchItemWriterBuilder<Object[]>()
-//            .dataSource(ds)
-//            .sql(sql)
-////            .itemSqlParameterSourceProvider(this::toSqlParameterSource)
-//            .itemPreparedStatementSetter((item, ps) -> {
-//                for (int i = 0; i < item.length; i++) {
-//                    ps.setObject(i + 1, item[i]);
-//                }
-//            })
-//            .build();
-//    }
-
 }

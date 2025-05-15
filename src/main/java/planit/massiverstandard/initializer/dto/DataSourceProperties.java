@@ -17,6 +17,7 @@ public class DataSourceProperties {
     @Data
     public static class DataProps {
         private String database;
+        private String properties;
         private String host;
         private String port;
         private String username;

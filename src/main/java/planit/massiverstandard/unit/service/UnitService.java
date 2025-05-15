@@ -3,7 +3,7 @@ package planit.massiverstandard.unit.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import planit.massiverstandard.columntransform.ColumnTransform;
+import planit.massiverstandard.columntransform.entity.ColumnTransform;
 import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.datasource.service.DataSourceService;
 import planit.massiverstandard.exception.unit.UnitInGroupException;
@@ -13,7 +13,6 @@ import planit.massiverstandard.filter.serivce.FilterService;
 import planit.massiverstandard.group.service.GroupUnitService;
 import planit.massiverstandard.unit.dto.UnitDto;
 import planit.massiverstandard.unit.dto.UnitMapper;
-import planit.massiverstandard.unit.dto.request.ProcedureParameterDto;
 import planit.massiverstandard.unit.dto.request.UnitUpdateDto;
 import planit.massiverstandard.unit.entity.ProcedureParameter;
 import planit.massiverstandard.unit.entity.Unit;
@@ -122,7 +121,14 @@ public class UnitService implements CommandUnit {
                     columnTransformDto.getSourceColumn(),
                     columnTransformDto.getTargetColumn(),
                     columnTransformDto.isOverWrite(),
-                    columnTransformDto.getTargetColumnType()
+                    columnTransformDto.getTargetColumnType(),
+                    columnTransformDto.getTransformType(),
+                    columnTransformDto.getFormatPattern(),
+                    columnTransformDto.getCustomExpression(),
+                    columnTransformDto.getSubstrStart(),
+                    columnTransformDto.getSubstrLength(),
+                    columnTransformDto.getRegexPattern(),
+                    columnTransformDto.getReplacement()
                 )
             )
             .toList();

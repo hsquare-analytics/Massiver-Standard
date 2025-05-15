@@ -2,7 +2,7 @@ package planit.massiverstandard.unit.dto.response;
 
 import lombok.Data;
 import lombok.Getter;
-import planit.massiverstandard.columntransform.ColumnTransform;
+import planit.massiverstandard.columntransform.entity.ColumnTransform;
 import planit.massiverstandard.datasource.entity.DataSource;
 import planit.massiverstandard.filter.entity.Filter;
 
